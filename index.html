@@ -256,6 +256,133 @@
   }
   .report-card:hover .card-cta { gap: 10px; color: var(--brand-teal); }
 
+  /* FEATURED CARD (Impact Report) */
+  .featured-card {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 40px;
+    background: linear-gradient(135deg, #1A3B6D 0%, #0F2649 60%, #0099D1 180%);
+    border: 1px solid rgba(0, 153, 209, 0.4);
+    border-radius: 20px;
+    padding: 40px 44px;
+    margin-bottom: 56px;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s ease;
+  }
+  .featured-card::before {
+    content: "";
+    position: absolute;
+    top: 0; right: 0;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(0, 196, 179, 0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .featured-card::after {
+    content: "";
+    position: absolute;
+    bottom: -60px; left: -60px;
+    width: 240px; height: 240px;
+    background: radial-gradient(circle, rgba(255, 209, 102, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .featured-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--brand-teal);
+    box-shadow: 0 24px 60px rgba(0, 153, 209, 0.2);
+  }
+  .featured-content { position: relative; z-index: 2; }
+  .featured-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--brand-yellow);
+    background: rgba(255, 209, 102, 0.12);
+    border: 1px solid rgba(255, 209, 102, 0.3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+  }
+  .featured-title {
+    font-size: clamp(28px, 3.2vw, 40px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    color: #FFFFFF;
+  }
+  .featured-desc {
+    font-size: 16px;
+    color: var(--muted-2);
+    line-height: 1.6;
+    margin-bottom: 28px;
+    max-width: 540px;
+  }
+  .featured-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(189, 215, 255, 0.15);
+  }
+  .featured-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .featured-meta-lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .featured-meta-val {
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .featured-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--brand-teal);
+    color: var(--brand-navy-deep);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 14px 22px;
+    border-radius: 10px;
+    letter-spacing: 0.01em;
+    transition: gap 0.15s ease;
+  }
+  .featured-card:hover .featured-cta { gap: 14px; }
+  .featured-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  .featured-visual svg {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
+  }
+  @media (max-width: 900px) {
+    .featured-card { grid-template-columns: 1fr; padding: 32px; }
+    .featured-visual { display: none; }
+  }
+
   /* FOOTER */
   footer {
     margin-top: 80px;
@@ -324,10 +451,65 @@
     </div>
   </section>
 
-  <!-- REPORTS SECTION -->
+  <!-- ========== FEATURED REPORT — IMPACT REVIEW ========== -->
   <div class="section-header">
-    <h2 class="section-title">Reports & Dashboards</h2>
-    <span class="section-tag">4 Active</span>
+    <h2 class="section-title">Featured</h2>
+    <span class="section-tag">Strategic Overview</span>
+  </div>
+
+  <a href="https://gamma.app/docs/Simple-Green-90-Day-Impact-Review-e4zz6x1s99lg4jk?mode=doc" class="featured-card" target="_blank" rel="noopener noreferrer">
+    <div class="featured-content">
+      <div class="featured-tag">★ &nbsp;Featured · Quarterly Review</div>
+      <h3 class="featured-title">90-Day Impact Review</h3>
+      <p class="featured-desc">Strategic synthesis of the first 90 days. Program performance, account engagement, audience intelligence, and the forward strategy — the executive view of where we are and where we're going.</p>
+      <div class="featured-meta">
+        <div class="featured-meta-item">
+          <span class="featured-meta-lbl">Format</span>
+          <span class="featured-meta-val">Gamma Presentation</span>
+        </div>
+        <div class="featured-meta-item">
+          <span class="featured-meta-lbl">Audience</span>
+          <span class="featured-meta-val">Executive / Stakeholder</span>
+        </div>
+        <div class="featured-meta-item">
+          <span class="featured-meta-lbl">Updated</span>
+          <span class="featured-meta-val">May 21, 2026</span>
+        </div>
+      </div>
+      <span class="featured-cta">Open Impact Review →</span>
+    </div>
+    <div class="featured-visual">
+      <svg viewBox="0 0 280 220" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="barGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stop-color="#0099D1" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#00C4B3" stop-opacity="0.95"/>
+          </linearGradient>
+          <linearGradient id="barGrad2" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stop-color="#0099D1" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#0099D1" stop-opacity="0.7"/>
+          </linearGradient>
+        </defs>
+        <rect x="20" y="150" width="34" height="50" rx="4" fill="url(#barGrad2)"/>
+        <rect x="68" y="120" width="34" height="80" rx="4" fill="url(#barGrad2)"/>
+        <rect x="116" y="80" width="34" height="120" rx="4" fill="url(#barGrad2)"/>
+        <rect x="164" y="40" width="34" height="160" rx="4" fill="url(#barGrad)"/>
+        <rect x="212" y="10" width="34" height="190" rx="4" fill="url(#barGrad)"/>
+        <path d="M 30 145 L 80 110 L 130 70 L 178 32 L 226 5" stroke="#FFD166" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+        <path d="M 220 8 L 226 5 L 224 13" stroke="#FFD166" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+        <circle cx="30" cy="145" r="3" fill="#FFD166"/>
+        <circle cx="80" cy="110" r="3" fill="#FFD166"/>
+        <circle cx="130" cy="70" r="3" fill="#FFD166"/>
+        <circle cx="178" cy="32" r="3" fill="#FFD166"/>
+        <circle cx="226" cy="5" r="3" fill="#FFD166"/>
+      </svg>
+    </div>
+  </a>
+
+  <!-- ========== SUPPORTING REPORTS ========== -->
+  <div class="section-header">
+    <h2 class="section-title">Supporting Reports</h2>
+    <span class="section-tag">5 Active</span>
   </div>
 
   <div class="reports-grid">
@@ -338,7 +520,7 @@
          2. Copy a card block below, swap the href + title + description + date -->
 
     <!-- CARD 1 -->
-    <a href="abm-engagement.html" class="report-card" target="_blank" rel="noopener noreferrer">
+    <a href="abm-engagement.html" class="report-card">
       <div class="card-header">
         <div class="card-num">01 · ACCOUNT INTELLIGENCE</div>
         <div class="card-status status-live">Live</div>
@@ -352,7 +534,7 @@
     </a>
 
     <!-- CARD 2 -->
-    <a href="audience-segment.html" class="report-card" target="_blank" rel="noopener noreferrer">
+    <a href="audience-segment.html" class="report-card">
       <div class="card-header">
         <div class="card-num">02 · AUDIENCE DIAGNOSTIC</div>
         <div class="card-status status-live">Live</div>
@@ -366,7 +548,7 @@
     </a>
 
     <!-- CARD 3 -->
-    <a href="message-creative.html" class="report-card" target="_blank" rel="noopener noreferrer">
+    <a href="message-creative.html" class="report-card">
       <div class="card-header">
         <div class="card-num">03 · CREATIVE PERFORMANCE</div>
         <div class="card-status status-live">Live</div>
@@ -380,7 +562,7 @@
     </a>
 
     <!-- CARD 4 -->
-    <a href="targeting.html" class="report-card" target="_blank" rel="noopener noreferrer">
+    <a href="targeting.html" class="report-card">
       <div class="card-header">
         <div class="card-num">04 · TARGETING STRATEGY</div>
         <div class="card-status status-live">Live</div>
@@ -393,10 +575,24 @@
       </div>
     </a>
 
-    <!-- TEMPLATE CARD — copy this and rename when adding a new report
-    <a href="REPORT-FILENAME.html" class="report-card" target="_blank" rel="noopener noreferrer">
+    <!-- CARD 5 — COMPETITIVE WHITE SPACE (external Google Doc) -->
+    <a href="https://docs.google.com/document/d/1y6qkav5uPEnQj01ZZ2lNqw735JWx28yg599d4bliskE/edit?tab=t.0" class="report-card" target="_blank" rel="noopener noreferrer">
       <div class="card-header">
-        <div class="card-num">05 · CATEGORY NAME</div>
+        <div class="card-num">05 · COMPETITIVE INTEL</div>
+        <div class="card-status status-updated">Document</div>
+      </div>
+      <h3 class="card-title">Competitive White Space Analysis</h3>
+      <p class="card-desc">10-competitor industrial cleaning landscape. Saturated messaging, white space, and the positioning opportunities Simple Green can own — including regulatory compliance as a buying trigger.</p>
+      <div class="card-footer">
+        <span class="card-updated">Updated · April 2026</span>
+        <span class="card-cta">Open Document →</span>
+      </div>
+    </a>
+
+    <!-- TEMPLATE CARD — copy this and rename when adding a new report
+    <a href="REPORT-FILENAME.html" class="report-card">
+      <div class="card-header">
+        <div class="card-num">06 · CATEGORY NAME</div>
         <div class="card-status status-live">Live</div>
       </div>
       <h3 class="card-title">Report Title</h3>
