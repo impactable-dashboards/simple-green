@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Audience Segment Diagnostic — Simple Green</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {--navy:#0A1628;--navy-mid:#111D35;--navy-light:#1A2B4A;--navy-surface:#162040;--blue:#3B82F6;--blue-bright:#60A5FA;--cyan:#06B6D4;--emerald:#10B981;--amber:#F59E0B;--rose:#F43F5E;--red:#EF4444;--purple:#8B5CF6;--slate:#94A3B8;--slate-dim:#64748B;--white:#F1F5F9;--white-bright:#FFFFFF;--border:rgba(59,130,246,0.12);--border-bright:rgba(59,130,246,0.25);--font:'Plus Jakarta Sans',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--navy);color:var(--white);font-family:var(--font);line-height:1.6;-webkit-font-smoothing:antialiased}
+.container{max-width:1280px;margin:0 auto;padding:0 24px;position:relative}
+.hdr{padding:56px 0 40px;border-bottom:1px solid var(--border)}
+.hdr .ey{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue-bright);font-weight:600;margin-bottom:12px}
+.hdr h1{font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;background:linear-gradient(135deg,var(--white-bright),var(--blue-bright));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hdr .sub{color:var(--slate);font-size:15px;max-width:640px}
+.hdr .meta{display:flex;gap:24px;margin-top:20px;flex-wrap:wrap}
+.hdr .meta span{font-size:12px;color:var(--slate-dim);font-family:var(--mono)}
+.hdr .meta span strong{color:var(--slate);font-weight:500}
+.snav{position:sticky;top:0;z-index:100;background:rgba(10,22,40,0.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.snav .container{display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+.snav .container::-webkit-scrollbar{display:none}
+.nl{padding:14px 18px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--slate-dim);text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.2s}
+.nl:hover,.nl.active{color:var(--blue-bright);border-bottom-color:var(--blue)}
+section{padding:48px 0;border-bottom:1px solid var(--border)}
+section:last-child{border-bottom:none}
+.sl{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue-bright);font-weight:600;margin-bottom:8px}
+.st{font-size:clamp(22px,3vw,32px);font-weight:700;letter-spacing:-0.8px;margin-bottom:6px}
+.sd{color:var(--slate);font-size:14px;margin-bottom:32px;max-width:600px}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:40px}
+.sc{background:var(--navy-mid);border:1px solid var(--border);border-radius:12px;padding:22px}
+.sc .lb{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate-dim);font-weight:600;margin-bottom:6px}
+.sc .vl{font-size:clamp(24px,3vw,34px);font-weight:800;letter-spacing:-1px;font-family:var(--mono)}
+.sc .sb{font-size:11px;color:var(--slate);margin-top:4px}
+.c-em .vl{color:var(--emerald)} .c-cy .vl{color:var(--cyan)} .c-bl .vl{color:var(--blue-bright)} .c-am .vl{color:var(--amber)} .c-rs .vl{color:var(--rose)} .c-pu .vl{color:var(--purple)}
+.tw{overflow-x:auto;border-radius:12px;border:1px solid var(--border);background:var(--navy-mid);margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--navy-surface)}
+th{padding:12px 16px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate-dim);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 16px;border-bottom:1px solid var(--border);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover{background:rgba(59,130,246,0.04)}
+.cn{font-weight:600;color:var(--white-bright)}
+.mono{font-family:var(--mono);font-weight:500}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-left:6px}
+.b-icp{background:rgba(16,185,129,0.15);color:var(--emerald);border:1px solid rgba(16,185,129,0.25)}
+.callout{background:var(--navy-mid);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:0 12px 12px 0;padding:16px 20px;margin:12px 0;font-size:13px;line-height:1.7}
+.callout strong{color:var(--white-bright)}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px}
+.chart-box{background:var(--navy-mid);border:1px solid var(--border);border-radius:12px;padding:24px}
+.chart-box h4{font-size:13px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--slate);margin-bottom:16px}
+.persona-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:32px}
+.persona-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:12px;padding:24px}
+.persona-card h4{font-size:18px;font-weight:700;margin-bottom:4px}
+.persona-role{font-size:12px;color:var(--cyan);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:12px}
+.persona-stats{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+.persona-stats span{font-size:13px;color:var(--slate)}
+.persona-stats span strong{color:var(--white-bright);font-family:var(--mono)}
+.persona-titles,.persona-pain,.persona-msg{font-size:13px;color:var(--slate);line-height:1.6;margin-bottom:8px}
+.persona-titles strong,.persona-pain strong,.persona-msg strong{color:var(--white)}
+.icp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.icp-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.icp-card h4{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--slate-dim);margin-bottom:8px}
+.icp-card .pct{font-size:36px;font-weight:800;font-family:var(--mono)}
+.icp-card .detail{font-size:11px;color:var(--slate);margin-top:4px}
+.footer{padding:40px 0;text-align:center;border-top:1px solid var(--border)}
+.footer .logo{font-size:13px;font-weight:700;letter-spacing:1px;color:var(--blue-bright);text-transform:uppercase;margin-bottom:6px}
+.footer .tagline{font-size:11px;color:var(--slate-dim)}
+@media(max-width:768px){.chart-row,.icp-grid{grid-template-columns:1fr}.persona-grid{grid-template-columns:1fr}.sg{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head><body>
+<div class="container">
+<div class="hdr">
+<div class="ey">Diagnostic 1 of 4: Audience Segment</div>
+<h1>Simple Green Audience Intelligence</h1>
+<div class="sub">Who is engaging with Simple Green's LinkedIn campaigns? ICP validation across 6 audience dimensions with persona mapping and targeting recommendations.</div>
+<div class="meta">
+<span><strong>Client:</strong> Simple Green (Sunshine Makers, Inc.)</span>
+<span><strong>Period:</strong> Jan 1 - Apr 23, 2026</span>
+<span><strong>Source:</strong> DemandSense Audience Tuning</span>
+<span><strong>Total Clicks:</strong> 1,408</span>
+</div>
+</div>
+</div>
+
+<nav class="snav"><div class="container">
+<a class="nl" href="#icp">ICP Score</a>
+<a class="nl" href="#industries">Industries</a>
+<a class="nl" href="#sizes">Account Sizes</a>
+<a class="nl" href="#personas">Personas</a>
+<a class="nl" href="#functions">Functions</a>
+<a class="nl" href="#seniorities">Seniorities</a>
+<a class="nl" href="#titles">Job Titles</a>
+<a class="nl" href="#findings">Findings</a>
+</div></nav>
+
+<div class="container">
+
+<section id="icp">
+<div class="sl">Section 01</div>
+<div class="st">ICP Alignment Score</div>
+<div class="sd">What percentage of paid clicks go to ICP-aligned segments across each audience dimension?</div>
+<div class="sg">
+<div class="sc c-em"><div class="lb">Overall ICP Score</div><div class="vl">78%</div><div class="sb">Average across 4 dimensions</div></div>
+<div class="sc c-bl"><div class="lb">Total Clicks</div><div class="vl">1,408</div><div class="sb">Across all campaigns</div></div>
+<div class="sc c-am"><div class="lb">Total Spend</div><div class="vl">$18,354</div><div class="sb">Jan 1 - Apr 23</div></div>
+<div class="sc c-cy"><div class="lb">Avg CPC</div><div class="vl">$13.04</div><div class="sb">Down 14.5% PoP</div></div>
+</div>
+<div class="icp-grid">
+<div class="icp-card"><h4>Industry</h4><div class="pct" style="color:var(--emerald)">64.6%</div><div class="detail">1235 of 1912 clicks</div></div>
+<div class="icp-card"><h4>Company Size</h4><div class="pct" style="color:var(--emerald)">98.2%</div><div class="detail">1265 of 1288 clicks</div></div>
+<div class="icp-card"><h4>Job Function</h4><div class="pct" style="color:var(--emerald)">79.3%</div><div class="detail">1244 of 1569 clicks</div></div>
+<div class="icp-card"><h4>Seniority</h4><div class="pct" style="color:var(--emerald)">71.6%</div><div class="detail">977 of 1365 clicks</div></div>
+</div>
+<div class="callout" style="border-left-color:var(--emerald)"><strong>Targeting is working.</strong> 3 of 4 dimensions score above 70% ICP alignment. Company size is nearly perfect at 98.2%. The weakest dimension is industry at 64.6%, driven by impression leakage to Healthcare, Business Consulting, and Construction verticals. The gap between DemandSense-level ICP alignment (78.4% average) and rate accounts CSV-level alignment (26%) reflects that LinkedIn serves impressions broadly but ICP accounts click at significantly higher rates.</div>
+</section>
+
+<section id="industries">
+<div class="sl">Section 02</div>
+<div class="st">Industry Engagement</div>
+<div class="sd">Which industries are clicking? ICP-aligned industries flagged.</div>
+<div class="chart-row">
+<div class="chart-box"><h4>Clicks by Industry</h4><canvas id="indChart" height="350"></canvas></div>
+<div class="chart-box"><h4>ICP vs Non-ICP Click Share</h4><canvas id="icpIndChart" height="350"></canvas></div>
+</div>
+<div class="tw"><table><thead><tr><th>#</th><th>Industry</th><th>Clicks</th><th>% Clicks</th><th>Impressions</th><th>Cost</th><th>CPC</th><th>CTR</th><th>Conv</th></tr></thead><tbody>
+<tr><td class="mono">1</td><td class="cn">Food and Beverage Manufacturing <span class="badge b-icp">ICP</span></td>
+        <td class="mono">374</td><td class="mono">11.7%</td>
+        <td class="mono">83,109</td><td class="mono">$7,626</td>
+        <td class="mono">$20.39</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">2</td><td class="cn">Chemical Manufacturing <span class="badge b-icp">ICP</span></td>
+        <td class="mono">225</td><td class="mono">7.0%</td>
+        <td class="mono">46,682</td><td class="mono">$4,325</td>
+        <td class="mono">$19.22</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">3</td><td class="cn">Food and Beverage Services </td>
+        <td class="mono">157</td><td class="mono">4.9%</td>
+        <td class="mono">35,844</td><td class="mono">$3,205</td>
+        <td class="mono">$20.41</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">4</td><td class="cn">Transportation Equipment Mfg <span class="badge b-icp">ICP</span></td>
+        <td class="mono">161</td><td class="mono">5.0%</td>
+        <td class="mono">34,756</td><td class="mono">$3,011</td>
+        <td class="mono">$18.70</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">5</td><td class="cn">Wholesale Food and Beverage <span class="badge b-icp">ICP</span></td>
+        <td class="mono">148</td><td class="mono">4.6%</td>
+        <td class="mono">30,900</td><td class="mono">$2,998</td>
+        <td class="mono">$20.26</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">6</td><td class="cn">Machinery Manufacturing <span class="badge b-icp">ICP</span></td>
+        <td class="mono">119</td><td class="mono">3.7%</td>
+        <td class="mono">29,321</td><td class="mono">$2,249</td>
+        <td class="mono">$18.90</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">7</td><td class="cn">Manufacturing <span class="badge b-icp">ICP</span></td>
+        <td class="mono">124</td><td class="mono">3.9%</td>
+        <td class="mono">26,988</td><td class="mono">$2,346</td>
+        <td class="mono">$18.92</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">8</td><td class="cn">Hospitals and Health Care </td>
+        <td class="mono">110</td><td class="mono">3.4%</td>
+        <td class="mono">22,781</td><td class="mono">$2,120</td>
+        <td class="mono">$19.27</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">9</td><td class="cn">Government Administration <span class="badge b-icp">ICP</span></td>
+        <td class="mono">84</td><td class="mono">2.6%</td>
+        <td class="mono">19,011</td><td class="mono">$1,593</td>
+        <td class="mono">$18.96</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">10</td><td class="cn">Health and Human Services </td>
+        <td class="mono">80</td><td class="mono">2.5%</td>
+        <td class="mono">17,748</td><td class="mono">$1,611</td>
+        <td class="mono">$20.14</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">11</td><td class="cn">Medical Practices </td>
+        <td class="mono">64</td><td class="mono">2.0%</td>
+        <td class="mono">15,611</td><td class="mono">$1,120</td>
+        <td class="mono">$17.50</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">12</td><td class="cn">Medical Equipment Manufacturing </td>
+        <td class="mono">82</td><td class="mono">2.6%</td>
+        <td class="mono">15,441</td><td class="mono">$1,529</td>
+        <td class="mono">$18.65</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--emerald)">3</td></tr><tr><td class="mono">13</td><td class="cn">Business Consulting and Services </td>
+        <td class="mono">67</td><td class="mono">2.1%</td>
+        <td class="mono">14,875</td><td class="mono">$1,013</td>
+        <td class="mono">$15.12</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">14</td><td class="cn">Construction </td>
+        <td class="mono">59</td><td class="mono">1.8%</td>
+        <td class="mono">14,655</td><td class="mono">$1,092</td>
+        <td class="mono">$18.51</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">15</td><td class="cn">Facilities Services </td>
+        <td class="mono">58</td><td class="mono">1.8%</td>
+        <td class="mono">13,124</td><td class="mono">$1,200</td>
+        <td class="mono">$20.69</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="sizes">
+<div class="sl">Section 03</div>
+<div class="st">Account Size Distribution</div>
+<div class="sd">Which company sizes are engaging?</div>
+<div class="chart-row">
+<div class="chart-box"><h4>Clicks by Account Size</h4><canvas id="sizeChart" height="280"></canvas></div>
+<div class="chart-box"><h4>CTR by Account Size</h4><canvas id="sizeCtrChart" height="280"></canvas></div>
+</div>
+<div class="tw"><table><thead><tr><th>#</th><th>Size</th><th>Clicks</th><th>% Clicks</th><th>Impressions</th><th>Cost</th><th>CPC</th><th>CTR</th><th>Conv</th></tr></thead><tbody>
+<tr><td class="mono">1</td><td class="cn">1001-5000 <span class="badge b-icp">ICP</span></td>
+        <td class="mono">439</td><td class="mono">34.1%</td>
+        <td class="mono">95,485</td><td class="mono">$8,352</td>
+        <td class="mono">$19.02</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">2</td><td class="cn">201-500 <span class="badge b-icp">ICP</span></td>
+        <td class="mono">333</td><td class="mono">25.9%</td>
+        <td class="mono">73,447</td><td class="mono">$6,673</td>
+        <td class="mono">$20.04</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">3</td><td class="cn">501-1000 <span class="badge b-icp">ICP</span></td>
+        <td class="mono">251</td><td class="mono">19.5%</td>
+        <td class="mono">56,800</td><td class="mono">$5,046</td>
+        <td class="mono">$20.11</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">4</td><td class="cn">5001-10000 <span class="badge b-icp">ICP</span></td>
+        <td class="mono">176</td><td class="mono">13.7%</td>
+        <td class="mono">36,189</td><td class="mono">$3,526</td>
+        <td class="mono">$20.03</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">5</td><td class="cn">51-200 <span class="badge b-icp">ICP</span></td>
+        <td class="mono">66</td><td class="mono">5.1%</td>
+        <td class="mono">18,009</td><td class="mono">$1,403</td>
+        <td class="mono">$21.26</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">6</td><td class="cn">11-50 </td>
+        <td class="mono">13</td><td class="mono">1.0%</td>
+        <td class="mono">2,957</td><td class="mono">$172</td>
+        <td class="mono">$13.23</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">7</td><td class="cn">2-10 </td>
+        <td class="mono">10</td><td class="mono">0.8%</td>
+        <td class="mono">1,494</td><td class="mono">$168</td>
+        <td class="mono">$16.83</td><td class="mono">0.70%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">8</td><td class="cn">10001+ </td>
+        <td class="mono">0</td><td class="mono">0.0%</td>
+        <td class="mono">286</td><td class="mono">$0</td>
+        <td class="mono">$0.00</td><td class="mono">0.00%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">9</td><td class="cn">1 </td>
+        <td class="mono">0</td><td class="mono">0.0%</td>
+        <td class="mono">19</td><td class="mono">$0</td>
+        <td class="mono">$0.00</td><td class="mono">0.00%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="personas">
+<div class="sl">Section 04</div>
+<div class="st">Buyer Persona Playbook</div>
+<div class="sd">Four distinct personas emerging from the data. Each mapped to buying committee role, pain points, and recommended messaging angle.</div>
+<div class="persona-grid">
+<div class="persona-card" style="border-top:3px solid #3B82F6">
+<h4>Quality Assurance Leader</h4>
+<div class="persona-role">Influencer / Operational Owner</div>
+<div class="persona-stats">
+<span><strong>453</strong> title clicks</span>
+<span><strong>0.50%</strong> CTR</span>
+<span><strong>$19.24</strong> CPC</span>
+</div>
+<div class="persona-titles"><strong>Key Titles:</strong> QA Specialist (173), QA Manager (135), QA Technician (37), QC Inspector (36), QA Engineer (27), QA Supervisor (23), Food Safety Manager (22)</div>
+<div class="persona-pain"><strong>Pain Points:</strong> Maintaining FDA/OSHA compliance, managing chemical SDS documentation, ensuring cleaning products meet quality audit requirements, handling non-conformance from chemical exposure incidents</div>
+<div class="persona-msg"><strong>Winning Angle:</strong> EPA Safer Choice certification, Green Seal GS-37 compliance, NFPA/HMIS 0-rated safety profile. QA leaders respond to proof and documentation.</div>
+
+</div><div class="persona-card" style="border-top:3px solid #10B981">
+<h4>Operations Leader</h4>
+<div class="persona-role">Economic Buyer / Operational Owner</div>
+<div class="persona-stats">
+<span><strong>106</strong> title clicks</span>
+<span><strong>0.40%</strong> CTR</span>
+<span><strong>$19.76</strong> CPC</span>
+</div>
+<div class="persona-titles"><strong>Key Titles:</strong> Plant Manager (77), Facilities Manager (29), plus broader Ops function</div>
+<div class="persona-pain"><strong>Pain Points:</strong> Reducing downtime from cleaning ops, consolidating chemical SKUs, managing multi-site cleaning programs, reducing worker safety incidents. Only function generating conversions (6).</div>
+<div class="persona-msg"><strong>Winning Angle:</strong> SKU consolidation (one concentrate replaces 5-10 products), total cost of ownership, worker safety incident prevention. Operations leaders respond to efficiency and risk reduction.</div>
+<div style="margin-top:8px;padding:6px 10px;background:rgba(16,185,129,0.1);border-radius:6px;font-size:12px;color:var(--emerald)"><strong>6 conversions</strong> (only function generating conversions)</div>
+</div><div class="persona-card" style="border-top:3px solid #F59E0B">
+<h4>Safety and EHS</h4>
+<div class="persona-role">Gatekeeper</div>
+<div class="persona-stats">
+<span><strong>106</strong> title clicks</span>
+<span><strong>0.50%</strong> CTR</span>
+<span><strong>$19.19</strong> CPC</span>
+</div>
+<div class="persona-titles"><strong>Key Titles:</strong> Safety Manager (27), EHS Manager (24), Safety Director (19), Safety Specialist (36)</div>
+<div class="persona-pain"><strong>Pain Points:</strong> Reducing OSHA recordables from chemical exposure, meeting EPA regulations (methylene chloride ban), managing chemical inventory safety, insurance liability from caustic products</div>
+<div class="persona-msg"><strong>Winning Angle:</strong> NFPA/HMIS 0/0/0/0 rating. Cost of a single OSHA recordable ($40K+) vs. cost of switching. EPA methylene chloride ban creates urgent Anti-Spatter demand.</div>
+
+</div><div class="persona-card" style="border-top:3px solid #8B5CF6">
+<h4>Purchasing and Procurement</h4>
+<div class="persona-role">Economic Buyer</div>
+<div class="persona-stats">
+<span><strong>65</strong> title clicks</span>
+<span><strong>0.40%</strong> CTR</span>
+<span><strong>$19.47</strong> CPC</span>
+</div>
+<div class="persona-titles"><strong>Key Titles:</strong> Purchasing Manager (52), Procurement Manager (13)</div>
+<div class="persona-pain"><strong>Pain Points:</strong> Consolidating vendors and SKUs, meeting LEED/green procurement requirements, reducing per-facility cleaning costs, managing SDS for 10-15 chemical products</div>
+<div class="persona-msg"><strong>Winning Angle:</strong> Green Seal GS-37 for LEED compliance, vendor consolidation, dilution cost calculator to prove cost effectiveness vs. multiple specialty products.</div>
+
+</div>
+</div>
+</section>
+
+<section id="functions">
+<div class="sl">Section 05</div>
+<div class="st">Job Function Breakdown</div>
+<div class="sd">Which functions are clicking? Operations is the only function generating conversions.</div>
+<div class="chart-box" style="margin-bottom:24px"><h4>Clicks and Conversions by Function</h4><canvas id="fnChart" height="300"></canvas></div>
+<div class="tw"><table><thead><tr><th>#</th><th>Function</th><th>Clicks</th><th>% Clicks</th><th>Impressions</th><th>Cost</th><th>CPC</th><th>CTR</th><th>Conv</th></tr></thead><tbody>
+<tr><td class="mono">1</td><td class="cn">Operations <span class="badge b-icp">ICP</span></td>
+        <td class="mono">547</td><td class="mono">31.0%</td>
+        <td class="mono">126,585</td><td class="mono">$10,807</td>
+        <td class="mono">$19.76</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--emerald)">6</td></tr><tr><td class="mono">2</td><td class="cn">Quality Assurance <span class="badge b-icp">ICP</span></td>
+        <td class="mono">581</td><td class="mono">33.0%</td>
+        <td class="mono">115,711</td><td class="mono">$11,180</td>
+        <td class="mono">$19.24</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">3</td><td class="cn">Purchasing <span class="badge b-icp">ICP</span></td>
+        <td class="mono">116</td><td class="mono">6.6%</td>
+        <td class="mono">26,646</td><td class="mono">$2,259</td>
+        <td class="mono">$19.47</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">4</td><td class="cn">Engineering </td>
+        <td class="mono">76</td><td class="mono">4.3%</td>
+        <td class="mono">16,226</td><td class="mono">$1,483</td>
+        <td class="mono">$19.51</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">5</td><td class="cn">Business Development </td>
+        <td class="mono">51</td><td class="mono">2.9%</td>
+        <td class="mono">13,847</td><td class="mono">$923</td>
+        <td class="mono">$18.09</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">6</td><td class="cn">Research </td>
+        <td class="mono">46</td><td class="mono">2.6%</td>
+        <td class="mono">11,459</td><td class="mono">$854</td>
+        <td class="mono">$18.57</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">7</td><td class="cn">Community and Social Services </td>
+        <td class="mono">37</td><td class="mono">2.1%</td>
+        <td class="mono">9,534</td><td class="mono">$628</td>
+        <td class="mono">$16.97</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">8</td><td class="cn">Sales </td>
+        <td class="mono">42</td><td class="mono">2.4%</td>
+        <td class="mono">9,518</td><td class="mono">$793</td>
+        <td class="mono">$18.89</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">9</td><td class="cn">Finance </td>
+        <td class="mono">38</td><td class="mono">2.2%</td>
+        <td class="mono">9,105</td><td class="mono">$768</td>
+        <td class="mono">$20.22</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">10</td><td class="cn">Healthcare Services </td>
+        <td class="mono">35</td><td class="mono">2.0%</td>
+        <td class="mono">6,833</td><td class="mono">$639</td>
+        <td class="mono">$18.27</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="seniorities">
+<div class="sl">Section 06</div>
+<div class="st">Seniority Distribution</div>
+<div class="sd">Where in the org chart are clicks concentrating?</div>
+<div class="chart-row">
+<div class="chart-box"><h4>Clicks by Seniority</h4><canvas id="senChart" height="280"></canvas></div>
+<div class="chart-box"><h4>Spend by Seniority</h4><canvas id="senCostChart" height="280"></canvas></div>
+</div>
+<div class="tw"><table><thead><tr><th>#</th><th>Seniority</th><th>Clicks</th><th>% Clicks</th><th>Impressions</th><th>Cost</th><th>CPC</th><th>CTR</th><th>Conv</th></tr></thead><tbody>
+<tr><td class="mono">1</td><td class="cn">Manager <span class="badge b-icp">ICP</span></td>
+        <td class="mono">399</td><td class="mono">29.2%</td>
+        <td class="mono">99,417</td><td class="mono">$8,084</td>
+        <td class="mono">$20.26</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">2</td><td class="cn">Senior <span class="badge b-icp">ICP</span></td>
+        <td class="mono">388</td><td class="mono">28.4%</td>
+        <td class="mono">82,864</td><td class="mono">$7,427</td>
+        <td class="mono">$19.14</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">3</td><td class="cn">Entry </td>
+        <td class="mono">366</td><td class="mono">26.8%</td>
+        <td class="mono">69,552</td><td class="mono">$6,838</td>
+        <td class="mono">$18.68</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">4</td><td class="cn">Director <span class="badge b-icp">ICP</span></td>
+        <td class="mono">143</td><td class="mono">10.5%</td>
+        <td class="mono">33,944</td><td class="mono">$2,834</td>
+        <td class="mono">$19.81</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">5</td><td class="cn">VP <span class="badge b-icp">ICP</span></td>
+        <td class="mono">36</td><td class="mono">2.6%</td>
+        <td class="mono">9,448</td><td class="mono">$698</td>
+        <td class="mono">$19.39</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">6</td><td class="cn">CXO <span class="badge b-icp">ICP</span></td>
+        <td class="mono">11</td><td class="mono">0.8%</td>
+        <td class="mono">3,466</td><td class="mono">$176</td>
+        <td class="mono">$16.00</td><td class="mono">0.30%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">7</td><td class="cn">Owner </td>
+        <td class="mono">15</td><td class="mono">1.1%</td>
+        <td class="mono">2,930</td><td class="mono">$276</td>
+        <td class="mono">$18.43</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">8</td><td class="cn">Partner </td>
+        <td class="mono">7</td><td class="mono">0.5%</td>
+        <td class="mono">758</td><td class="mono">$80</td>
+        <td class="mono">$11.41</td><td class="mono">0.90%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">9</td><td class="cn">Training </td>
+        <td class="mono">0</td><td class="mono">0.0%</td>
+        <td class="mono">376</td><td class="mono">$0</td>
+        <td class="mono">$0.00</td><td class="mono">0.00%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">10</td><td class="cn">Unpaid </td>
+        <td class="mono">0</td><td class="mono">0.0%</td>
+        <td class="mono">4</td><td class="mono">$0</td>
+        <td class="mono">$0.00</td><td class="mono">0.00%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="titles">
+<div class="sl">Section 07</div>
+<div class="st">Job Title Intelligence</div>
+<div class="sd">Specific titles engaging. ICP-aligned titles flagged.</div>
+<div class="tw"><table><thead><tr><th>#</th><th>Title</th><th>Clicks</th><th>% Clicks</th><th>Impressions</th><th>Cost</th><th>CPC</th><th>CTR</th><th>Conv</th></tr></thead><tbody>
+<tr><td class="mono">1</td><td class="cn">Quality Assurance Specialist <span class="badge b-icp">ICP</span></td>
+        <td class="mono">173</td><td class="mono">11.7%</td>
+        <td class="mono">35,728</td><td class="mono">$3,118</td>
+        <td class="mono">$18.02</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">2</td><td class="cn">Quality Assurance Manager <span class="badge b-icp">ICP</span></td>
+        <td class="mono">135</td><td class="mono">9.1%</td>
+        <td class="mono">29,533</td><td class="mono">$2,644</td>
+        <td class="mono">$19.58</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">3</td><td class="cn">Plant Manager <span class="badge b-icp">ICP</span></td>
+        <td class="mono">77</td><td class="mono">5.2%</td>
+        <td class="mono">21,408</td><td class="mono">$1,531</td>
+        <td class="mono">$19.88</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">4</td><td class="cn">Purchasing Manager <span class="badge b-icp">ICP</span></td>
+        <td class="mono">52</td><td class="mono">3.5%</td>
+        <td class="mono">8,354</td><td class="mono">$1,091</td>
+        <td class="mono">$20.99</td><td class="mono">0.60%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">5</td><td class="cn">Facilities Manager <span class="badge b-icp">ICP</span></td>
+        <td class="mono">29</td><td class="mono">2.0%</td>
+        <td class="mono">7,530</td><td class="mono">$531</td>
+        <td class="mono">$18.33</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">6</td><td class="cn">Food Specialist <span class="badge b-icp">ICP</span></td>
+        <td class="mono">42</td><td class="mono">2.8%</td>
+        <td class="mono">6,131</td><td class="mono">$888</td>
+        <td class="mono">$21.15</td><td class="mono">0.70%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">7</td><td class="cn">Safety Manager <span class="badge b-icp">ICP</span></td>
+        <td class="mono">27</td><td class="mono">1.8%</td>
+        <td class="mono">5,604</td><td class="mono">$430</td>
+        <td class="mono">$15.93</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">8</td><td class="cn">Quality Assurance Technician <span class="badge b-icp">ICP</span></td>
+        <td class="mono">37</td><td class="mono">2.5%</td>
+        <td class="mono">5,395</td><td class="mono">$688</td>
+        <td class="mono">$18.59</td><td class="mono">0.70%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">9</td><td class="cn">Procurement Manager <span class="badge b-icp">ICP</span></td>
+        <td class="mono">13</td><td class="mono">0.9%</td>
+        <td class="mono">5,339</td><td class="mono">$228</td>
+        <td class="mono">$17.51</td><td class="mono">0.20%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">10</td><td class="cn">Quality Control Inspector <span class="badge b-icp">ICP</span></td>
+        <td class="mono">36</td><td class="mono">2.4%</td>
+        <td class="mono">5,291</td><td class="mono">$637</td>
+        <td class="mono">$17.70</td><td class="mono">0.70%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">11</td><td class="cn">EHS Manager <span class="badge b-icp">ICP</span></td>
+        <td class="mono">24</td><td class="mono">1.6%</td>
+        <td class="mono">5,201</td><td class="mono">$446</td>
+        <td class="mono">$18.58</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">12</td><td class="cn">Safety Director <span class="badge b-icp">ICP</span></td>
+        <td class="mono">19</td><td class="mono">1.3%</td>
+        <td class="mono">4,973</td><td class="mono">$450</td>
+        <td class="mono">$23.69</td><td class="mono">0.40%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">13</td><td class="cn">Safety Specialist <span class="badge b-icp">ICP</span></td>
+        <td class="mono">36</td><td class="mono">2.4%</td>
+        <td class="mono">4,839</td><td class="mono">$741</td>
+        <td class="mono">$20.57</td><td class="mono">0.70%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">14</td><td class="cn">Quality Assurance Engineer <span class="badge b-icp">ICP</span></td>
+        <td class="mono">27</td><td class="mono">1.8%</td>
+        <td class="mono">4,817</td><td class="mono">$490</td>
+        <td class="mono">$18.13</td><td class="mono">0.60%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">15</td><td class="cn">Quality Assurance Supervisor <span class="badge b-icp">ICP</span></td>
+        <td class="mono">23</td><td class="mono">1.6%</td>
+        <td class="mono">4,672</td><td class="mono">$407</td>
+        <td class="mono">$17.69</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr><tr><td class="mono">16</td><td class="cn">Food Safety Manager <span class="badge b-icp">ICP</span></td>
+        <td class="mono">22</td><td class="mono">1.5%</td>
+        <td class="mono">4,615</td><td class="mono">$442</td>
+        <td class="mono">$20.10</td><td class="mono">0.50%</td>
+        <td class="mono" style="color:var(--slate-dim)">0</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="findings">
+<div class="sl">Section 08</div>
+<div class="st">Findings and Recommendations</div>
+<div class="sd">10 findings from the audience data, ranked by strategic importance.</div>
+<div class="callout" style="border-left-color:var(--emerald)"><strong>ICP Targeting Score: 78/100</strong><br>Averaged across all 4 dimensions (industry, size, function, seniority), 78.4% of clicks go to ICP-aligned segments. Company size is the strongest dimension at 98.2%. Industry is the weakest at 64.6%.</div><div class="callout" style="border-left-color:var(--emerald)"><strong>QA and Ops Dominate the Buying Committee</strong><br>Quality Assurance (33%) and Operations (31%) account for 64% of all clicks. These are the right functions: QA evaluates compliance and safety, Operations controls budgets and vendor selection. This validates the targeting thesis.</div><div class="callout" style="border-left-color:var(--emerald)"><strong>Mid-Market Sweet Spot Confirmed</strong><br>Companies with 201-5,000 employees account for 79.4% of all clicks. The 1,001-5,000 band alone drives 34%. This matches Simple Green's ICP perfectly: large enough to have procurement processes, small enough that Diversey/Ecolab are overkill.</div><div class="callout" style="border-left-color:var(--amber)"><strong>Entry-Level Seniority Consumes 27% of Clicks</strong><br>Entry-level personas (QA Technicians, Safety Specialists, QC Inspectors) drive 366 clicks at 26.8% share. They are the lowest CPC ($18.68) but are unlikely purchase decision-makers. Evaluate whether their influence value justifies the spend, or if seniority-based bid adjustments should redirect budget to Manager and Director levels.</div><div class="callout" style="border-left-color:var(--amber)"><strong>VP and CXO Engagement Is Minimal</strong><br>VP accounts for only 2.6% of clicks (36), CXO just 0.8% (11). These are the economic buyers who sign contracts. The system reaches them (12,914 impressions combined) but they rarely click. Consider Thought Leader ad format to reach executives in-feed with founder content.</div><div class="callout" style="border-left-color:var(--amber)"><strong>Non-ICP Industries Absorb 35% of Clicks</strong><br>Hospitals/Healthcare (110 clicks), Business Consulting (67 clicks), and Construction (59 clicks) are outside core ICP but receiving significant engagement. Healthcare may be adjacent (clean room environments), but Business Consulting and Construction are likely waste. Evaluate for exclusion.</div><div class="callout" style="border-left-color:var(--amber)"><strong>Purchasing Function Is Underrepresented</strong><br>Purchasing/Procurement accounts for only 6.6% of clicks despite being a primary economic buyer. This function has fewer people on LinkedIn in manufacturing, so lower volume is expected, but dedicated creative addressing procurement pain points (SKU consolidation, vendor simplification, LEED compliance) could improve engagement.</div><div class="callout" style="border-left-color:var(--red)"><strong>Sales Function Leakage Unresolved</strong><br>Sales function shows 42 clicks (2.4%) and $793 in spend. Previously flagged in the Company Recon as generating conversion events despite not being targeted. Decision needed: exclude (cleaner data) or investigate (distribution/channel partners may hold Sales titles in industrial).</div><div class="callout" style="border-left-color:var(--emerald)"><strong>Food and Beverage Manufacturing Is the Top Performer</strong><br>F&B Manufacturing leads all industries with 374 clicks (11.7%), 0.50% CTR, and $20.39 CPC. Combined with F&B Services and Wholesale F&B, the food vertical accounts for 679 clicks (21.2%). This is the strongest signal for audience concentration.</div><div class="callout" style="border-left-color:var(--red)"><strong>Operations Is the Only Function Converting</strong><br>Of all job functions, only Operations has generated conversions (6 at $1,801 each). Quality Assurance, despite driving 33% of clicks, has zero conversions. This could indicate: (a) Operations personas are further down the buying journey, (b) the conversion event measures something Operations-specific (website page visit patterns), or (c) QA clicks are research behavior that does not yet convert. Needs investigation.</div>
+</section>
+
+</div>
+
+<div class="footer"><div class="container">
+<div class="logo">DemandSense by Impactable</div>
+<div class="tagline">Audience Segment Diagnostic | Simple Green | Jan 1 - Apr 23, 2026</div>
+</div></div>
+
+<script>
+Chart.defaults.color='#94A3B8';Chart.defaults.borderColor='rgba(59,130,246,0.08)';Chart.defaults.font.family="'Plus Jakarta Sans',sans-serif";
+
+const indData=[{"name": "Food and Beverage Manufactur", "clicks": 374, "icp": true}, {"name": "Chemical Manufacturing", "clicks": 225, "icp": true}, {"name": "Food and Beverage Services", "clicks": 157, "icp": false}, {"name": "Transportation Equipment Mfg", "clicks": 161, "icp": true}, {"name": "Wholesale Food and Beverage", "clicks": 148, "icp": true}, {"name": "Machinery Manufacturing", "clicks": 119, "icp": true}, {"name": "Manufacturing", "clicks": 124, "icp": true}, {"name": "Hospitals and Health Care", "clicks": 110, "icp": false}, {"name": "Government Administration", "clicks": 84, "icp": true}, {"name": "Health and Human Services", "clicks": 80, "icp": false}, {"name": "Medical Practices", "clicks": 64, "icp": false}, {"name": "Medical Equipment Manufactur", "clicks": 82, "icp": false}];
+new Chart(document.getElementById('indChart'),{type:'bar',data:{labels:indData.map(i=>i.name),datasets:[{data:indData.map(i=>i.clicks),backgroundColor:indData.map(i=>i.icp?'#10B981':'#64748B'),borderRadius:4,barThickness:18}]},options:{indexAxis:'y',scales:{x:{grid:{color:'rgba(59,130,246,0.06)'}},y:{grid:{display:false}}},plugins:{legend:{display:false}}}});
+
+new Chart(document.getElementById('icpIndChart'),{type:'doughnut',data:{labels:['ICP Industries','Non-ICP'],datasets:[{data:[1235,677],backgroundColor:['#10B981','#64748B'],borderWidth:0}]},options:{cutout:'65%',plugins:{legend:{position:'bottom',labels:{padding:16,usePointStyle:true}}}}});
+
+const szData=[{"name": "1001-5000", "clicks": 439, "ctr": 0.5}, {"name": "201-500", "clicks": 333, "ctr": 0.5}, {"name": "501-1000", "clicks": 251, "ctr": 0.4}, {"name": "5001-10000", "clicks": 176, "ctr": 0.5}, {"name": "51-200", "clicks": 66, "ctr": 0.4}, {"name": "11-50", "clicks": 13, "ctr": 0.4}, {"name": "2-10", "clicks": 10, "ctr": 0.7}];
+new Chart(document.getElementById('sizeChart'),{type:'bar',data:{labels:szData.map(s=>s.name),datasets:[{data:szData.map(s=>s.clicks),backgroundColor:'#3B82F6',borderRadius:4}]},options:{scales:{y:{grid:{color:'rgba(59,130,246,0.06)'}}},plugins:{legend:{display:false}}}});
+new Chart(document.getElementById('sizeCtrChart'),{type:'bar',data:{labels:szData.map(s=>s.name),datasets:[{data:szData.map(s=>s.ctr),backgroundColor:szData.map(s=>s.ctr>=0.5?'#10B981':'#F59E0B'),borderRadius:4}]},options:{scales:{y:{title:{display:true,text:'CTR %'},grid:{color:'rgba(59,130,246,0.06)'}}},plugins:{legend:{display:false}}}});
+
+const fnData=[{"name": "Operations", "clicks": 547, "conv": 6}, {"name": "Quality Assurance", "clicks": 581, "conv": 0}, {"name": "Purchasing", "clicks": 116, "conv": 0}, {"name": "Engineering", "clicks": 76, "conv": 0}, {"name": "Business Development", "clicks": 51, "conv": 0}, {"name": "Research", "clicks": 46, "conv": 0}, {"name": "Community and Social", "clicks": 37, "conv": 0}, {"name": "Sales", "clicks": 42, "conv": 0}];
+new Chart(document.getElementById('fnChart'),{type:'bar',data:{labels:fnData.map(f=>f.name),datasets:[{label:'Clicks',data:fnData.map(f=>f.clicks),backgroundColor:'#3B82F6',borderRadius:4},{label:'Conversions (x20)',data:fnData.map(f=>f.conv*20),backgroundColor:'#10B981',borderRadius:4}]},options:{scales:{y:{grid:{color:'rgba(59,130,246,0.06)'}}},plugins:{legend:{position:'bottom',labels:{padding:16,usePointStyle:true}}}}});
+
+const senData=[{"name": "Manager", "clicks": 399, "cost": 8084.0}, {"name": "Senior", "clicks": 388, "cost": 7427.0}, {"name": "Entry", "clicks": 366, "cost": 6838.0}, {"name": "Director", "clicks": 143, "cost": 2834.0}, {"name": "VP", "clicks": 36, "cost": 698.0}, {"name": "CXO", "clicks": 11, "cost": 176.0}, {"name": "Owner", "clicks": 15, "cost": 276.0}, {"name": "Partner", "clicks": 7, "cost": 80.0}];
+new Chart(document.getElementById('senChart'),{type:'bar',data:{labels:senData.map(s=>s.name),datasets:[{data:senData.map(s=>s.clicks),backgroundColor:['#3B82F6','#3B82F6','#F59E0B','#10B981','#10B981','#8B5CF6','#64748B','#64748B'],borderRadius:4}]},options:{scales:{y:{grid:{color:'rgba(59,130,246,0.06)'}}},plugins:{legend:{display:false}}}});
+new Chart(document.getElementById('senCostChart'),{type:'bar',data:{labels:senData.map(s=>s.name),datasets:[{data:senData.map(s=>s.cost),backgroundColor:'#F59E0B',borderRadius:4}]},options:{scales:{y:{title:{display:true,text:'Spend ($)'},grid:{color:'rgba(59,130,246,0.06)'}}},plugins:{legend:{display:false}}}});
+
+const sects=document.querySelectorAll('section[id]');const nls=document.querySelectorAll('.nl');
+window.addEventListener('scroll',()=>{let c='';sects.forEach(s=>{if(window.scrollY>=s.offsetTop-120)c=s.id});nls.forEach(l=>{l.classList.remove('active');if(l.getAttribute('href')==='#'+c)l.classList.add('active')});});
+</script>
+</body></html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ABM Account Intelligence — Simple Green</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0A1628; --navy-mid: #111D35; --navy-light: #1A2B4A; --navy-surface: #162040;
+  --blue: #3B82F6; --blue-bright: #60A5FA; --blue-glow: rgba(59,130,246,0.15);
+  --cyan: #06B6D4; --emerald: #10B981; --amber: #F59E0B; --rose: #F43F5E; --red: #EF4444; --purple: #8B5CF6;
+  --slate: #94A3B8; --slate-dim: #64748B; --white: #F1F5F9; --white-bright: #FFFFFF;
+  --border: rgba(59,130,246,0.12); --border-bright: rgba(59,130,246,0.25);
+  --font: 'Plus Jakarta Sans', -apple-system, sans-serif; --mono: 'JetBrains Mono', monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box }
+html { scroll-behavior: smooth }
+body { background: var(--navy); color: var(--white); font-family: var(--font); line-height: 1.6; -webkit-font-smoothing: antialiased }
+.noise { position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.03; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") }
+.container { max-width:1280px; margin:0 auto; padding:0 24px; position:relative; z-index:1 }
+.hdr { padding:56px 0 40px; border-bottom:1px solid var(--border) }
+.hdr .ey { font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:var(--blue-bright); font-weight:600; margin-bottom:12px }
+.hdr h1 { font-size:clamp(28px,4vw,44px); font-weight:800; letter-spacing:-1.5px; line-height:1.1; background:linear-gradient(135deg,var(--white-bright),var(--blue-bright)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:8px }
+.hdr .sub { color:var(--slate); font-size:15px; max-width:640px }
+.hdr .meta { display:flex; gap:24px; margin-top:20px; flex-wrap:wrap }
+.hdr .meta span { font-size:12px; color:var(--slate-dim); font-family:var(--mono) }
+.hdr .meta span strong { color:var(--slate); font-weight:500 }
+.snav { position:sticky; top:0; z-index:100; background:rgba(10,22,40,0.88); backdrop-filter:blur(16px); border-bottom:1px solid var(--border) }
+.snav .container { display:flex; gap:0; overflow-x:auto; scrollbar-width:none }
+.snav .container::-webkit-scrollbar { display:none }
+.nl { padding:14px 18px; font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; color:var(--slate-dim); text-decoration:none; white-space:nowrap; border-bottom:2px solid transparent; transition:all 0.2s }
+.nl:hover,.nl.active { color:var(--blue-bright); border-bottom-color:var(--blue) }
+section { padding:48px 0; border-bottom:1px solid var(--border) }
+section:last-child { border-bottom:none }
+.sl { font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:var(--blue-bright); font-weight:600; margin-bottom:8px }
+.st { font-size:clamp(22px,3vw,32px); font-weight:700; letter-spacing:-0.8px; margin-bottom:6px }
+.sd { color:var(--slate); font-size:14px; margin-bottom:32px; max-width:600px }
+.sg { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:40px }
+.sc { background:var(--navy-mid); border:1px solid var(--border); border-radius:12px; padding:22px; transition:border-color 0.2s }
+.sc:hover { border-color:var(--border-bright) }
+.sc .lb { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--slate-dim); font-weight:600; margin-bottom:6px }
+.sc .vl { font-size:clamp(24px,3vw,34px); font-weight:800; letter-spacing:-1px; font-family:var(--mono) }
+.sc .sb { font-size:11px; color:var(--slate); margin-top:4px }
+.c-em .vl{color:var(--emerald)} .c-cy .vl{color:var(--cyan)} .c-bl .vl{color:var(--blue-bright)} .c-am .vl{color:var(--amber)} .c-rs .vl{color:var(--rose)} .c-pu .vl{color:var(--purple)}
+.tw { overflow-x:auto; border-radius:12px; border:1px solid var(--border); background:var(--navy-mid) }
+table { width:100%; border-collapse:collapse; font-size:13px }
+thead { background:var(--navy-surface) }
+th { padding:12px 16px; text-align:left; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--slate-dim); font-weight:600; border-bottom:1px solid var(--border); white-space:nowrap }
+td { padding:12px 16px; border-bottom:1px solid var(--border); white-space:nowrap }
+tr:last-child td { border-bottom:none }
+tr:hover { background:rgba(59,130,246,0.04) }
+.cn { font-weight:600; color:var(--white-bright); max-width:200px; overflow:hidden; text-overflow:ellipsis }
+.mono { font-family:var(--mono); font-weight:500 }
+.tab-bar { display:flex; gap:0; margin-bottom:24px; border-bottom:1px solid var(--border) }
+.tab-btn { padding:10px 20px; font-size:12px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; color:var(--slate-dim); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; font-family:var(--font); transition:all 0.2s }
+.tab-btn:hover { color:var(--white) }
+.tab-btn.active { color:var(--blue-bright); border-bottom-color:var(--blue) }
+.tab-content { display:none }
+.tab-content.active { display:block }
+.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:9px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase }
+.b-icp { background:rgba(16,185,129,0.15); color:var(--emerald); border:1px solid rgba(16,185,129,0.25) }
+.b-nonicp { background:rgba(244,63,94,0.1); color:var(--rose); border:1px solid rgba(244,63,94,0.2) }
+.callout { background:var(--navy-mid); border:1px solid var(--border); border-left:3px solid var(--blue); border-radius:0 12px 12px 0; padding:20px 24px; margin:24px 0; font-size:14px; line-height:1.7 }
+.callout.warn { border-left-color:var(--amber) }
+.callout.good { border-left-color:var(--emerald) }
+.callout strong { color:var(--white-bright) }
+.chart-row { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:32px }
+.chart-box { background:var(--navy-mid); border:1px solid var(--border); border-radius:12px; padding:24px }
+.chart-box h4 { font-size:13px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; color:var(--slate); margin-bottom:16px }
+.action-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:16px }
+.action-card { background:var(--navy-mid); border:1px solid var(--border); border-radius:12px; padding:24px; border-top:3px solid var(--blue) }
+.action-card h4 { font-size:15px; font-weight:700; margin-bottom:8px }
+.action-card p { font-size:13px; color:var(--slate); line-height:1.6 }
+.action-card.priority { border-top-color:var(--rose) }
+.action-card.growth { border-top-color:var(--emerald) }
+.action-card.optimize { border-top-color:var(--amber) }
+.footer { padding:40px 0; text-align:center; border-top:1px solid var(--border) }
+.footer .logo { font-size:13px; font-weight:700; letter-spacing:1px; color:var(--blue-bright); text-transform:uppercase; margin-bottom:6px }
+.footer .tagline { font-size:11px; color:var(--slate-dim) }
+@media(max-width:768px) { .chart-row{grid-template-columns:1fr} .action-grid{grid-template-columns:1fr} .sg{grid-template-columns:repeat(2,1fr)} }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+
+<div class="container">
+<div class="hdr">
+<div class="ey">ABM Account Intelligence</div>
+<h1>Simple Green (Sunshine Makers, Inc.)</h1>
+<div class="sub">Account engagement analysis across 8,620 companies reached via LinkedIn. No pipeline data available. Engagement Level column uniform ("Low") across export. Segmented by actual behavior.</div>
+<div class="meta">
+<span><strong>Client:</strong> Simple Green</span>
+<span><strong>Channels:</strong> LinkedIn + Google</span>
+<span><strong>Accounts:</strong> 8,620</span>
+<span><strong>Period:</strong> Jan 1 - Apr 23, 2026</span>
+<span><strong>Pipeline Accounts:</strong> 0 (no CRM data)</span>
+</div>
+</div>
+</div>
+
+<nav class="snav"><div class="container">
+<a class="nl" href="#funnel">Funnel</a>
+<a class="nl" href="#leaderboard">Leaderboard</a>
+<a class="nl" href="#segments">Segments</a>
+<a class="nl" href="#heatmap">Heatmap</a>
+<a class="nl" href="#waste">ICP Alignment</a>
+<a class="nl" href="#actions">Action Plan</a>
+</div></nav>
+
+<div class="container">
+
+<section id="funnel">
+<div class="sl">Section 01</div>
+<div class="st">Account Funnel</div>
+<div class="sd">Progression from reach to engagement. Without CRM integration, the funnel stops at "Clicked." Pipeline stages are unavailable.</div>
+<div class="sg">
+<div class="sc c-bl"><div class="lb">Accounts Reached</div><div class="vl">8,620</div><div class="sb">Served at least 1 impression</div></div>
+<div class="sc c-pu"><div class="lb">Aware (30+ Imps)</div><div class="vl">1,852</div><div class="sb">21.5% of reached</div></div>
+<div class="sc c-am"><div class="lb">Ad Engaged (Clicked)</div><div class="vl">74</div><div class="sb">0.86% of reached</div></div>
+<div class="sc c-rs"><div class="lb">Leads Captured</div><div class="vl">0</div><div class="sb">No lead forms deployed</div></div>
+<div class="sc c-cy"><div class="lb">Total Clicks</div><div class="vl">324</div><div class="sb">Across 74 accounts</div></div>
+<div class="sc c-em"><div class="lb">Total Spend</div><div class="vl">$6,661</div><div class="sb">$20.56 avg CPC</div></div>
+</div>
+<div class="chart-row">
+<div class="chart-box"><h4>Account Funnel</h4><canvas id="funnelChart" height="180"></canvas></div>
+<div class="chart-box"><h4>ICP vs Non-ICP Impressions</h4><canvas id="icpChart" height="180"></canvas></div>
+</div>
+<div class="callout warn"><strong>CRM Gap:</strong> Without pipeline data, we cannot determine which of the 74 clicking accounts are in active sales conversations, have received quotes, or represent net-new opportunity. Connecting CRM transforms this from a click report into a pipeline activation tool.</div>
+</section>
+
+<section id="leaderboard">
+<div class="sl">Section 02</div>
+<div class="st">Hot Account Leaderboard</div>
+<div class="sd">Top 50 accounts scored by engagement: (clicks x 10) + (impressions / 100). ICP alignment flagged.</div>
+<div class="tab-bar">
+<button class="tab-btn active" onclick="switchTab(this,'all')">All Accounts</button>
+<button class="tab-btn" onclick="switchTab(this,'icp')">ICP Aligned</button>
+<button class="tab-btn" onclick="switchTab(this,'engaged')">Clicked Only</button>
+</div>
+<div id="tab-all" class="tab-content active"><div class="tw"><table><thead><tr><th>#</th><th>Account</th><th>Industry</th><th>Size</th><th>Score</th><th>Clicks</th><th>Impressions</th><th>Spend</th><th>ICP</th></tr></thead><tbody id="tbody-all"></tbody></table></div></div>
+<div id="tab-icp" class="tab-content"><div class="tw"><table><thead><tr><th>#</th><th>Account</th><th>Industry</th><th>Size</th><th>Score</th><th>Clicks</th><th>Impressions</th><th>Spend</th></tr></thead><tbody id="tbody-icp"></tbody></table></div></div>
+<div id="tab-engaged" class="tab-content"><div class="tw"><table><thead><tr><th>#</th><th>Account</th><th>Industry</th><th>Size</th><th>Score</th><th>Clicks</th><th>Impressions</th><th>Spend</th><th>ICP</th></tr></thead><tbody id="tbody-engaged"></tbody></table></div></div>
+</section>
+
+<section id="segments">
+<div class="sl">Section 03</div>
+<div class="st">Segment Analysis</div>
+<div class="sd">Which industries and company sizes are engaging? Data validates ICP targeting precision.</div>
+<div class="chart-row">
+<div class="chart-box"><h4>Clicks by Industry (Top 15)</h4><canvas id="indChart" height="320"></canvas></div>
+<div class="chart-box"><h4>Clicks by Company Size</h4><canvas id="sizeChart" height="320"></canvas></div>
+</div>
+<div class="chart-row">
+<div class="chart-box"><h4>Impressions vs Clicks by Industry</h4><canvas id="indScatterChart" height="320"></canvas></div>
+<div class="chart-box"><h4>CTR by Company Size</h4><canvas id="sizeCtrChart" height="320"></canvas></div>
+</div>
+<div class="callout good"><strong>ICP Validation:</strong> Food and Beverage, Chemical, and Transportation Equipment manufacturing account for the top click-producing industries, confirming the targeting thesis. Mid-market companies (201-5,000 employees) account for 79.6% of all clicks.</div>
+</section>
+
+<section id="heatmap">
+<div class="sl">Section 04</div>
+<div class="st">Engagement Heatmap</div>
+<div class="sd">Industry x Company Size matrix. Bubble size = click volume. Shows where engagement concentrates.</div>
+<div class="chart-box" style="margin-bottom:24px"><canvas id="heatmapChart" height="400"></canvas></div>
+</section>
+
+<section id="waste">
+<div class="sl">Section 05</div>
+<div class="st">ICP Alignment and Waste</div>
+<div class="sd">How much reach and spend goes to ICP-fit accounts vs. non-ICP accounts.</div>
+<div class="sg">
+<div class="sc c-em"><div class="lb">ICP Accounts</div><div class="vl">2,589</div><div class="sb">30.0% of reached</div></div>
+<div class="sc c-rs"><div class="lb">Non-ICP Accounts</div><div class="vl">6,031</div><div class="sb">70.0% of reached</div></div>
+<div class="sc c-cy"><div class="lb">ICP Impression Share</div><div class="vl">36.3%</div><div class="sb">88,156 of 242,764</div></div>
+<div class="sc c-am"><div class="lb">ICP Click Share</div><div class="vl">25.9%</div><div class="sb">84 of 324 clicks</div></div>
+</div>
+<div class="callout warn"><strong>Impression Leakage:</strong> 63.7% of impressions go to non-ICP accounts. However, LinkedIn charges on clicks, not impressions. The fix: company exclusion lists targeting non-ICP industries and specific high-impression zero-click accounts. This costs nothing and immediately improves targeting precision.</div>
+<h4 style="font-size:14px;font-weight:600;margin:24px 0 12px;color:var(--slate)">Top Impression Absorbers with Zero Clicks</h4>
+<div class="tw"><table><thead><tr><th>#</th><th>Account</th><th>Industry</th><th>Size</th><th>Impressions</th><th>ICP</th></tr></thead><tbody id="tbody-waste"></tbody></table></div>
+</section>
+
+<section id="actions">
+<div class="sl">Section 06</div>
+<div class="st">Action Plan</div>
+<div class="sd">Six priority actions mapped to the data above.</div>
+<div class="action-grid">
+<div class="action-card priority"><h4>1. Fix Conversion Tracking</h4><p>Zero leads captured across 74 engaged accounts. Deploy Lead Gen Forms at BOF targeting the warm pool, implement thank-you page conversion events, or establish manual pipeline matching. This is the single highest-impact action.</p></div>
+<div class="action-card priority"><h4>2. Connect CRM Data</h4><p>74 accounts are clicking, but we cannot determine which are in pipeline. Request read-only CRM access or a manual export. Cross-referencing engaged accounts against pipeline transforms "clicks" into "pipeline accounts touched by LinkedIn."</p></div>
+<div class="action-card optimize"><h4>3. Deploy Company Exclusion Lists</h4><p>Add exclusion lists for non-ICP industries (sports, banking, education management) and specific high-impression zero-click accounts like SoFi Stadium (692 imp, 0 clicks) and Citizens Business Bank (458 imp, 0 clicks). Zero cost, immediate impact on targeting quality.</p></div>
+<div class="action-card optimize"><h4>4. Concentrate TOF Budget</h4><p>The 200K Manufacturing audience at $5K/mo produces only 4.7% penetration. Reallocate toward proven segments: Food and Bev Manufacturing (0.45% CTR), Chemical Manufacturing (0.50% CTR), Transportation Equipment (0.50% CTR).</p></div>
+<div class="action-card growth"><h4>5. Activate Sales on Warm Accounts</h4><p>Share the top 20 ICP-fit engaged accounts (Huntsman Corp, Cardinal Glass, OCI Global, Altium Packaging, etc.) with Simple Green's sales team for direct outreach. These accounts have demonstrated intent through repeated ad engagement.</p></div>
+<div class="action-card growth"><h4>6. DemandSense Recommendations</h4><p>Use <strong>Audience Tuning</strong> to suppress non-ICP segments. Revisit <strong>WebID</strong> after conversion tracking is fixed to identify named contacts behind company signals. Use <strong>Revenue Attribution</strong> once CRM is connected to tie ad exposure to deals.</p></div>
+</div>
+</section>
+
+</div>
+
+<div class="footer"><div class="container">
+<div class="logo">DemandSense by Impactable</div>
+<div class="tagline">ABM Account Intelligence Report | Simple Green | Jan 1 - Apr 23, 2026</div>
+</div></div>
+
+<script>
+Chart.defaults.color='#94A3B8';
+Chart.defaults.borderColor='rgba(59,130,246,0.08)';
+Chart.defaults.font.family="'Plus Jakarta Sans',sans-serif";
+
+const scored=[{"name": "Mountaire Farms", "industry": "information technology and services", "size": "5001-10000", "clicks": 9, "imp": 124, "cost": 64.15, "score": 91.2, "icp": false}, {"name": "Huntsman Corporation", "industry": "chemicals", "size": "5001-10000", "clicks": 8, "imp": 621, "cost": 215.59, "score": 86.2, "icp": true}, {"name": "OneSolution Team", "industry": "facilities services", "size": "51-200", "clicks": 8, "imp": 422, "cost": 145.15, "score": 84.2, "icp": true}, {"name": "Cardinal Glass Industries", "industry": "glass, ceramics & concrete", "size": "5001-10000", "clicks": 8, "imp": 128, "cost": 61.5, "score": 81.3, "icp": true}, {"name": "Office of the County Engineer", "industry": "Unknown", "size": "Unknown", "clicks": 8, "imp": 67, "cost": 146.98, "score": 80.7, "icp": false}, {"name": "Buckhead & Newport Meat and Seafood", "industry": "Unknown", "size": "Unknown", "clicks": 7, "imp": 234, "cost": 179.46, "score": 72.3, "icp": false}, {"name": "Kashiv BioSciences LLC", "industry": "pharmaceuticals", "size": "201-500", "clicks": 6, "imp": 527, "cost": 133.52, "score": 65.3, "icp": false}, {"name": "OCI Global", "industry": "chemicals", "size": "1001-5000", "clicks": 6, "imp": 284, "cost": 115.63, "score": 62.8, "icp": true}, {"name": "Altium Packaging", "industry": "packaging and containers", "size": "1001-5000", "clicks": 6, "imp": 237, "cost": 46.07, "score": 62.4, "icp": true}, {"name": "Auburn Mechanical, Inc.", "industry": "mechanical or industrial engineering", "size": "201-500", "clicks": 6, "imp": 233, "cost": 91.84, "score": 62.3, "icp": false}, {"name": "ORION", "industry": "construction", "size": "1001-5000", "clicks": 6, "imp": 157, "cost": 133.85, "score": 61.6, "icp": false}, {"name": "Niagara Bottling", "industry": "Unknown", "size": "Unknown", "clicks": 5, "imp": 1134, "cost": 67.41, "score": 61.3, "icp": false}, {"name": "Olympic Steel", "industry": "mining & metals", "size": "1001-5000", "clicks": 5, "imp": 279, "cost": 106.58, "score": 52.8, "icp": true}, {"name": "MMR Group", "industry": "construction", "size": "1001-5000", "clicks": 5, "imp": 247, "cost": 100.17, "score": 52.5, "icp": false}, {"name": "EnerVenue", "industry": "oil & energy", "size": "201-500", "clicks": 5, "imp": 228, "cost": 98.77, "score": 52.3, "icp": true}, {"name": "Bake'n Joy Foods, Inc.", "industry": "food & beverages", "size": "201-500", "clicks": 5, "imp": 223, "cost": 143.55, "score": 52.2, "icp": true}, {"name": "QTC Management, Inc.", "industry": "hospital & health care", "size": "1001-5000", "clicks": 5, "imp": 213, "cost": 85.25, "score": 52.1, "icp": false}, {"name": "TECO Energy", "industry": "utilities", "size": "1001-5000", "clicks": 5, "imp": 212, "cost": 133.54, "score": 52.1, "icp": false}, {"name": "Cipla USA", "industry": "pharmaceuticals", "size": "1001-5000", "clicks": 5, "imp": 193, "cost": 83.08, "score": 51.9, "icp": false}, {"name": "HomeTeam Pest Defense", "industry": "consumer services", "size": "1001-5000", "clicks": 5, "imp": 190, "cost": 96.64, "score": 51.9, "icp": false}, {"name": "V&V Supremo Foods Inc", "industry": "food & beverages", "size": "201-500", "clicks": 5, "imp": 187, "cost": 149.81, "score": 51.9, "icp": true}, {"name": "Farmer's Fridge", "industry": "food & beverages", "size": "201-500", "clicks": 5, "imp": 182, "cost": 149.81, "score": 51.8, "icp": true}, {"name": "hims & hers", "industry": "Unknown", "size": "Unknown", "clicks": 5, "imp": 146, "cost": 108.24, "score": 51.5, "icp": false}, {"name": "City of Dearborn Heights", "industry": "Unknown", "size": "Unknown", "clicks": 5, "imp": 37, "cost": 87.0, "score": 50.4, "icp": false}, {"name": "Levain Bakery", "industry": "food & beverages", "size": "201-500", "clicks": 5, "imp": 21, "cost": 114.5, "score": 50.2, "icp": true}, {"name": "Nestl\u00e9 Purina North America", "industry": "Unknown", "size": "Unknown", "clicks": 4, "imp": 935, "cost": 86.65, "score": 49.4, "icp": false}, {"name": "Darigold", "industry": "consumer goods", "size": "1001-5000", "clicks": 4, "imp": 726, "cost": 68.52, "score": 47.3, "icp": false}, {"name": "The Marzetti Company", "industry": "Unknown", "size": "Unknown", "clicks": 4, "imp": 622, "cost": 130.92, "score": 46.2, "icp": false}, {"name": "Kansas City National Security Campus", "industry": "Unknown", "size": "Unknown", "clicks": 4, "imp": 498, "cost": 83.77, "score": 45.0, "icp": false}, {"name": "TC Industries, Inc.", "industry": "mining & metals", "size": "201-500", "clicks": 4, "imp": 339, "cost": 92.65, "score": 43.4, "icp": true}, {"name": "Borusan Pipe US", "industry": "mining & metals", "size": "201-500", "clicks": 4, "imp": 317, "cost": 97.7, "score": 43.2, "icp": true}, {"name": "Church & Dwight Co., Inc.", "industry": "Unknown", "size": "Unknown", "clicks": 4, "imp": 257, "cost": 73.77, "score": 42.6, "icp": false}, {"name": "Blue Diamond Growers", "industry": "Unknown", "size": "Unknown", "clicks": 4, "imp": 254, "cost": 102.0, "score": 42.5, "icp": false}, {"name": "Shiloh Industries", "industry": "Unknown", "size": "Unknown", "clicks": 4, "imp": 243, "cost": 73.02, "score": 42.4, "icp": false}, {"name": "Farmina", "industry": "food production", "size": "501-1000", "clicks": 4, "imp": 238, "cost": 105.94, "score": 42.4, "icp": true}, {"name": "Otsuka Pharmaceutical Companies (U.S.)", "industry": "pharmaceuticals", "size": "1001-5000", "clicks": 4, "imp": 207, "cost": 78.15, "score": 42.1, "icp": false}, {"name": "Reynolds Consumer Products", "industry": "consumer goods", "size": "1001-5000", "clicks": 4, "imp": 205, "cost": 71.15, "score": 42.0, "icp": false}, {"name": "Wells Pharma", "industry": "pharmaceuticals", "size": "51-200", "clicks": 4, "imp": 203, "cost": 58.15, "score": 42.0, "icp": false}, {"name": "Filtrona", "industry": "consumer goods", "size": "1001-5000", "clicks": 4, "imp": 196, "cost": 103.09, "score": 42.0, "icp": false}, {"name": "Amrize Building Materials", "industry": "Unknown", "size": "Unknown", "clicks": 4, "imp": 194, "cost": 90.78, "score": 41.9, "icp": false}, {"name": "Utz Brands, Inc.", "industry": "food production", "size": "1001-5000", "clicks": 4, "imp": 160, "cost": 71.77, "score": 41.6, "icp": true}, {"name": "Grecian Delight | Kronos Foods", "industry": "Unknown", "size": "Unknown", "clicks": 4, "imp": 157, "cost": 106.0, "score": 41.6, "icp": false}, {"name": "USDA-FSIS", "industry": "government administration", "size": "5001-10000", "clicks": 4, "imp": 143, "cost": 134.18, "score": 41.4, "icp": true}, {"name": "Zeta Charter Schools", "industry": "education management", "size": "201-500", "clicks": 4, "imp": 136, "cost": 76.72, "score": 41.4, "icp": false}, {"name": "R.A Jones, a Coesia company", "industry": "machinery", "size": "501-1000", "clicks": 4, "imp": 121, "cost": 101.49, "score": 41.2, "icp": true}, {"name": "Mecklenburg County", "industry": "government administration", "size": "5001-10000", "clicks": 4, "imp": 112, "cost": 75.73, "score": 41.1, "icp": true}, {"name": "Nice Group", "industry": "electrical/electronic manufacturing", "size": "1001-5000", "clicks": 4, "imp": 94, "cost": 79.96, "score": 40.9, "icp": true}, {"name": "True Manufacturing", "industry": "consumer goods", "size": "1001-5000", "clicks": 4, "imp": 87, "cost": 67.92, "score": 40.9, "icp": false}, {"name": "City of St. Cloud, FL", "industry": "construction", "size": "1001-5000", "clicks": 4, "imp": 67, "cost": 82.5, "score": 40.7, "icp": false}, {"name": "Avania", "industry": "medical devices", "size": "201-500", "clicks": 4, "imp": 58, "cost": 53.57, "score": 40.6, "icp": false}];
+const industries=[{"name": "food & beverages", "count": 426, "imp": 20372, "clicks": 27, "cost": 712.37, "ctr": 0.133}, {"name": "food production", "count": 540, "imp": 25542, "clicks": 23, "cost": 569.74, "ctr": 0.09}, {"name": "consumer goods", "count": 254, "imp": 10822, "clicks": 22, "cost": 439.87, "ctr": 0.203}, {"name": "pharmaceuticals", "count": 173, "imp": 7618, "clicks": 19, "cost": 352.90000000000003, "ctr": 0.249}, {"name": "construction", "count": 404, "imp": 8538, "clicks": 19, "cost": 389.48, "ctr": 0.223}, {"name": "chemicals", "count": 185, "imp": 6811, "clicks": 17, "cost": 395.22, "ctr": 0.25}, {"name": "mining & metals", "count": 99, "imp": 3532, "clicks": 13, "cost": 296.93, "ctr": 0.368}, {"name": "packaging and containers", "count": 129, "imp": 4730, "clicks": 9, "cost": 137.07, "ctr": 0.19}, {"name": "information technology and services", "count": 61, "imp": 745, "clicks": 9, "cost": 64.15, "ctr": 1.208}, {"name": "facilities services", "count": 47, "imp": 1835, "clicks": 8, "cost": 145.15, "ctr": 0.436}, {"name": "glass, ceramics & concrete", "count": 15, "imp": 398, "clicks": 8, "cost": 61.5, "ctr": 2.01}, {"name": "government administration", "count": 582, "imp": 11397, "clicks": 8, "cost": 209.91000000000003, "ctr": 0.07}, {"name": "education management", "count": 174, "imp": 4964, "clicks": 7, "cost": 124.52, "ctr": 0.141}, {"name": "mechanical or industrial engineering", "count": 158, "imp": 3018, "clicks": 6, "cost": 91.84, "ctr": 0.199}, {"name": "consumer services", "count": 22, "imp": 913, "clicks": 5, "cost": 96.64, "ctr": 0.548}];
+const sizes=[{"name": "1-10", "count": 296, "imp": 4675, "clicks": 0, "cost": 0.0, "ctr": 0.0}, {"name": "11-50", "count": 163, "imp": 3412, "clicks": 0, "cost": 0.0, "ctr": 0.0}, {"name": "51-200", "count": 524, "imp": 16611, "clicks": 12, "cost": 203.3, "ctr": 0.072}, {"name": "201-500", "count": 2054, "imp": 50298, "clicks": 69, "cost": 1526.92, "ctr": 0.137}, {"name": "501-1000", "count": 1280, "imp": 35134, "clicks": 17, "cost": 443.24, "ctr": 0.048}, {"name": "1001-5000", "count": 2077, "imp": 64669, "clicks": 102, "cost": 1989.09, "ctr": 0.158}, {"name": "5001-10000", "count": 545, "imp": 20849, "clicks": 43, "cost": 770.26, "ctr": 0.206}, {"name": "10001+", "count": 277, "imp": 6521, "clicks": 0, "cost": 0.0, "ctr": 0.0}];
+const funnel=[{"stage": "Accounts Reached", "count": 8620, "color": "#64748B"}, {"stage": "Aware (30+ Imps)", "count": 1852, "color": "#3B82F6"}, {"stage": "Ad Engaged (Clicked)", "count": 74, "color": "#F59E0B"}];
+const waste=[{"name": "SoFi Stadium and Hollywood Park", "industry": "sports", "size": "501-1000", "imp": 692, "icp": false}, {"name": "Frankston Packaging Company", "industry": "education management", "size": "1-10", "imp": 639, "icp": false}, {"name": "Cadence Petroleum Group", "industry": "oil & energy", "size": "501-1000", "imp": 633, "icp": true}, {"name": "ByHeart", "industry": "health, wellness and fitness", "size": "201-500", "imp": 588, "icp": false}, {"name": "Maple Leaf Farms", "industry": "food production", "size": "501-1000", "imp": 584, "icp": true}, {"name": "Buckeye Union High School District", "industry": "education management", "size": "201-500", "imp": 570, "icp": false}, {"name": "Marquardt U.S.", "industry": "electrical/electronic manufacturing", "size": "10001+", "imp": 569, "icp": true}, {"name": "FUJIFILM Biotechnologies", "industry": "Unknown", "size": "Unknown", "imp": 526, "icp": false}, {"name": "Simtra BioPharma Solutions", "industry": "Unknown", "size": "Unknown", "imp": 524, "icp": false}, {"name": "Swire Coca-Cola, USA", "industry": "food & beverages", "size": "5001-10000", "imp": 511, "icp": true}, {"name": "Berkley", "industry": "packaging and containers", "size": "51-200", "imp": 507, "icp": true}, {"name": "CO-AX Technology Inc.", "industry": "electrical/electronic manufacturing", "size": "201-500", "imp": 459, "icp": true}, {"name": "Citizens Business Bank", "industry": "banking", "size": "1001-5000", "imp": 458, "icp": false}, {"name": "Leonardo DRS", "industry": "defense & space", "size": "5001-10000", "imp": 448, "icp": false}, {"name": "Stumptown Coffee Roasters", "industry": "food & beverages", "size": "201-500", "imp": 444, "icp": true}, {"name": "Kloeckner Metals - Americas", "industry": "mining & metals", "size": "1001-5000", "imp": 420, "icp": true}, {"name": "SpaceX", "industry": "aviation & aerospace", "size": "1001-5000", "imp": 415, "icp": false}, {"name": "QUALITY ENCLOSURES, INC", "industry": "building materials", "size": "201-500", "imp": 413, "icp": false}, {"name": "Dr. Bronner's", "industry": "consumer goods", "size": "201-500", "imp": 409, "icp": false}, {"name": "DuBois Chemicals, Inc.", "industry": "chemicals", "size": "1001-5000", "imp": 399, "icp": true}];
+
+// Populate leaderboard tables
+function populateTable(id, items) {
+  const tb=document.getElementById(id);
+  items.forEach((a,i)=>{
+    const tr=document.createElement('tr');
+    const icpBadge=a.icp?'<span class="badge b-icp">ICP</span>':'<span class="badge b-nonicp">Non-ICP</span>';
+    if(id==='tbody-icp'){
+      tr.innerHTML=`<td class="mono">${i+1}</td><td class="cn">${a.name}</td><td>${a.industry}</td><td>${a.size}</td><td class="mono">${a.score}</td><td class="mono">${a.clicks}</td><td class="mono">${a.imp.toLocaleString()}</td><td class="mono">$${a.cost.toLocaleString()}</td>`;
+    } else {
+      tr.innerHTML=`<td class="mono">${i+1}</td><td class="cn">${a.name}</td><td>${a.industry}</td><td>${a.size}</td><td class="mono">${a.score}</td><td class="mono">${a.clicks}</td><td class="mono">${a.imp.toLocaleString()}</td><td class="mono">$${a.cost.toLocaleString()}</td><td>${icpBadge}</td>`;
+    }
+    tb.appendChild(tr);
+  });
+}
+populateTable('tbody-all', scored);
+populateTable('tbody-icp', scored.filter(a=>a.icp));
+populateTable('tbody-engaged', scored.filter(a=>a.clicks>0));
+
+// Waste table
+const wtb=document.getElementById('tbody-waste');
+waste.forEach((a,i)=>{
+  const tr=document.createElement('tr');
+  const icpBadge=a.icp?'<span class="badge b-icp">ICP</span>':'<span class="badge b-nonicp">Non-ICP</span>';
+  tr.innerHTML=`<td class="mono">${i+1}</td><td class="cn">${a.name}</td><td>${a.industry}</td><td>${a.size}</td><td class="mono">${a.imp.toLocaleString()}</td><td>${icpBadge}</td>`;
+  wtb.appendChild(tr);
+});
+
+// Funnel chart
+new Chart(document.getElementById('funnelChart'),{type:'bar',data:{labels:funnel.map(f=>f.stage),datasets:[{data:funnel.map(f=>f.count),backgroundColor:funnel.map(f=>f.color),borderRadius:6,barThickness:32}]},options:{indexAxis:'y',scales:{x:{type:'logarithmic',grid:{color:'rgba(59,130,246,0.06)'}},y:{grid:{display:false}}},plugins:{legend:{display:false}}}});
+
+// ICP doughnut
+new Chart(document.getElementById('icpChart'),{type:'doughnut',data:{labels:['ICP-Aligned','Non-ICP'],datasets:[{data:[88156,154608],backgroundColor:['#10B981','#64748B'],borderWidth:0}]},options:{cutout:'65%',plugins:{legend:{position:'bottom',labels:{padding:16,usePointStyle:true}}}}});
+
+// Industry bar
+new Chart(document.getElementById('indChart'),{type:'bar',data:{labels:industries.map(i=>i.name.length>25?i.name.substring(0,25)+'...':i.name),datasets:[{data:industries.map(i=>i.clicks),backgroundColor:'#10B981',borderRadius:4,barThickness:18}]},options:{indexAxis:'y',scales:{x:{grid:{color:'rgba(59,130,246,0.06)'}},y:{grid:{display:false}}},plugins:{legend:{display:false}}}});
+
+// Size chart
+const sizeLabels=sizes.map(s=>s.name.replace(' employees','').replace(' employee',''));
+new Chart(document.getElementById('sizeChart'),{type:'bar',data:{labels:sizeLabels,datasets:[{label:'Impressions (÷100)',data:sizes.map(s=>Math.round(s.imp/100)),backgroundColor:'rgba(59,130,246,0.5)',borderRadius:4},{label:'Clicks',data:sizes.map(s=>s.clicks),backgroundColor:'#10B981',borderRadius:4}]},options:{scales:{y:{grid:{color:'rgba(59,130,246,0.06)'}}},plugins:{legend:{position:'bottom',labels:{padding:16,usePointStyle:true}}}}});
+
+// Impressions vs clicks by industry
+new Chart(document.getElementById('indScatterChart'),{type:'bar',data:{labels:industries.slice(0,10).map(i=>i.name.length>22?i.name.substring(0,22)+'...':i.name),datasets:[{label:'Impressions (÷100)',data:industries.slice(0,10).map(i=>Math.round(i.imp/100)),backgroundColor:'rgba(59,130,246,0.4)',borderRadius:4},{label:'Clicks',data:industries.slice(0,10).map(i=>i.clicks),backgroundColor:'#10B981',borderRadius:4}]},options:{indexAxis:'y',scales:{x:{grid:{color:'rgba(59,130,246,0.06)'}},y:{grid:{display:false}}},plugins:{legend:{position:'bottom',labels:{padding:16,usePointStyle:true}}}}});
+
+// CTR by size
+new Chart(document.getElementById('sizeCtrChart'),{type:'bar',data:{labels:sizeLabels,datasets:[{data:sizes.map(s=>s.ctr),backgroundColor:sizes.map(s=>s.ctr>0.05?'#10B981':s.ctr>0?'#F59E0B':'#64748B'),borderRadius:4}]},options:{scales:{y:{title:{display:true,text:'CTR %'},grid:{color:'rgba(59,130,246,0.06)'}}},plugins:{legend:{display:false}}}});
+
+// Heatmap
+const heatmapData=[{"industry": "automotive", "size": "201-500", "clicks": 3}, {"industry": "aviation & aerospace", "size": "201-500", "clicks": 4}, {"industry": "chemicals", "size": "1001-5000", "clicks": 6}, {"industry": "chemicals", "size": "201-500", "clicks": 3}, {"industry": "chemicals", "size": "5001-10000", "clicks": 8}, {"industry": "construction", "size": "1001-5000", "clicks": 15}, {"industry": "construction", "size": "5001-10000", "clicks": 4}, {"industry": "consumer goods", "size": "1001-5000", "clicks": 22}, {"industry": "consumer services", "size": "1001-5000", "clicks": 5}, {"industry": "defense & space", "size": "1001-5000", "clicks": 3}, {"industry": "education management", "size": "1001-5000", "clicks": 3}, {"industry": "education management", "size": "201-500", "clicks": 4}, {"industry": "electrical/electronic manufacturing", "size": "1001-5000", "clicks": 4}, {"industry": "facilities services", "size": "51-200", "clicks": 8}, {"industry": "food & beverages", "size": "1001-5000", "clicks": 4}, {"industry": "food & beverages", "size": "201-500", "clicks": 20}, {"industry": "food & beverages", "size": "5001-10000", "clicks": 3}, {"industry": "food production", "size": "1001-5000", "clicks": 7}, {"industry": "food production", "size": "201-500", "clicks": 3}, {"industry": "food production", "size": "501-1000", "clicks": 13}, {"industry": "glass, ceramics & concrete", "size": "5001-10000", "clicks": 8}, {"industry": "government administration", "size": "5001-10000", "clicks": 8}, {"industry": "hospital & health care", "size": "1001-5000", "clicks": 5}, {"industry": "information technology and services", "size": "5001-10000", "clicks": 9}, {"industry": "machinery", "size": "501-1000", "clicks": 4}, {"industry": "mechanical or industrial engineering", "size": "201-500", "clicks": 6}, {"industry": "medical devices", "size": "201-500", "clicks": 4}, {"industry": "mining & metals", "size": "1001-5000", "clicks": 5}, {"industry": "mining & metals", "size": "201-500", "clicks": 8}, {"industry": "oil & energy", "size": "201-500", "clicks": 5}, {"industry": "packaging and containers", "size": "1001-5000", "clicks": 6}, {"industry": "packaging and containers", "size": "5001-10000", "clicks": 3}, {"industry": "pharmaceuticals", "size": "1001-5000", "clicks": 9}, {"industry": "pharmaceuticals", "size": "201-500", "clicks": 6}, {"industry": "pharmaceuticals", "size": "51-200", "clicks": 4}, {"industry": "recreational facilities and services", "size": "1001-5000", "clicks": 3}, {"industry": "textiles", "size": "201-500", "clicks": 3}, {"industry": "utilities", "size": "1001-5000", "clicks": 5}];
+const heatIndustries=[...new Set(heatmapData.map(h=>h.industry))];
+const heatSizes=[...new Set(heatmapData.map(h=>h.size))];
+const sizeIdx=s=>{const o=['51-200','201-500','501-1000','1001-5000','5001-10000'];const i=o.findIndex(x=>s.includes(x));return i>=0?i:5};
+new Chart(document.getElementById('heatmapChart'),{type:'bubble',data:{datasets:heatmapData.map(h=>({label:h.industry+' / '+h.size,data:[{x:sizeIdx(h.size),y:heatIndustries.indexOf(h.industry),r:Math.max(h.clicks*2.5,5)}],backgroundColor:'rgba(16,185,129,0.4)',borderColor:'rgba(16,185,129,0.6)',borderWidth:1}))},options:{scales:{x:{type:'category',labels:['51-200','201-500','501-1000','1001-5000','5001-10000','Other'],title:{display:true,text:'Company Size'},grid:{color:'rgba(59,130,246,0.06)'}},y:{type:'category',labels:heatIndustries,grid:{color:'rgba(59,130,246,0.06)'}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const d=heatmapData[ctx.datasetIndex];return d.industry+' / '+d.size+': '+d.clicks+' clicks'}}}}}});
+
+// Tab switching
+function switchTab(btn,tab){const sec=btn.closest('section');sec.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));sec.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));btn.classList.add('active');sec.querySelector('#tab-'+tab).classList.add('active')}
+
+// Scroll nav
+const sections=document.querySelectorAll('section[id]');const navLinks=document.querySelectorAll('.nl');
+window.addEventListener('scroll',()=>{let c='';sections.forEach(s=>{if(window.scrollY>=s.offsetTop-120)c=s.id});navLinks.forEach(l=>{l.classList.remove('active');if(l.getAttribute('href')==='#'+c)l.classList.add('active')})});
+</script>
+</body>
+</html>

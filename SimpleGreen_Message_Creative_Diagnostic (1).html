@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Message & Creative Diagnostic — Simple Green</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {--navy:#0A1628;--navy-mid:#111D35;--navy-light:#1A2B4A;--navy-surface:#162040;--blue:#3B82F6;--blue-bright:#60A5FA;--cyan:#06B6D4;--emerald:#10B981;--amber:#F59E0B;--rose:#F43F5E;--red:#EF4444;--purple:#8B5CF6;--slate:#94A3B8;--slate-dim:#64748B;--white:#F1F5F9;--white-bright:#FFFFFF;--border:rgba(59,130,246,0.12);--border-bright:rgba(59,130,246,0.25);--font:'Plus Jakarta Sans',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--navy);color:var(--white);font-family:var(--font);line-height:1.6;-webkit-font-smoothing:antialiased}
+.container{max-width:1280px;margin:0 auto;padding:0 24px;position:relative}
+.hdr{padding:56px 0 40px;border-bottom:1px solid var(--border)}
+.hdr .ey{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue-bright);font-weight:600;margin-bottom:12px}
+.hdr h1{font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;background:linear-gradient(135deg,var(--white-bright),var(--blue-bright));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hdr .sub{color:var(--slate);font-size:15px;max-width:640px}
+.hdr .meta{display:flex;gap:24px;margin-top:20px;flex-wrap:wrap}
+.hdr .meta span{font-size:12px;color:var(--slate-dim);font-family:var(--mono)}
+.hdr .meta span strong{color:var(--slate);font-weight:500}
+.snav{position:sticky;top:0;z-index:100;background:rgba(10,22,40,0.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.snav .container{display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+.snav .container::-webkit-scrollbar{display:none}
+.nl{padding:14px 18px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--slate-dim);text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.2s}
+.nl:hover,.nl.active{color:var(--blue-bright);border-bottom-color:var(--blue)}
+section{padding:48px 0;border-bottom:1px solid var(--border)}
+section:last-child{border-bottom:none}
+.sl{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue-bright);font-weight:600;margin-bottom:8px}
+.st{font-size:clamp(22px,3vw,32px);font-weight:700;letter-spacing:-0.8px;margin-bottom:6px}
+.sd{color:var(--slate);font-size:14px;margin-bottom:32px;max-width:600px}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:40px}
+.sc{background:var(--navy-mid);border:1px solid var(--border);border-radius:12px;padding:22px}
+.sc .lb{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate-dim);font-weight:600;margin-bottom:6px}
+.sc .vl{font-size:clamp(24px,3vw,34px);font-weight:800;letter-spacing:-1px;font-family:var(--mono)}
+.sc .sb{font-size:11px;color:var(--slate);margin-top:4px}
+.c-em .vl{color:var(--emerald)} .c-cy .vl{color:var(--cyan)} .c-bl .vl{color:var(--blue-bright)} .c-am .vl{color:var(--amber)} .c-rs .vl{color:var(--rose)} .c-pu .vl{color:var(--purple)}
+.tw{overflow-x:auto;border-radius:12px;border:1px solid var(--border);background:var(--navy-mid);margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--navy-surface)}
+th{padding:12px 16px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate-dim);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 16px;border-bottom:1px solid var(--border);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover{background:rgba(59,130,246,0.04)}
+.cn{font-weight:600;color:var(--white-bright)}
+.mono{font-family:var(--mono);font-weight:500}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+.b-pass{background:rgba(16,185,129,0.15);color:var(--emerald)} .b-warn{background:rgba(245,158,11,0.15);color:var(--amber)} .b-fail{background:rgba(239,68,68,0.15);color:var(--red)} .b-new{background:rgba(139,92,246,0.15);color:var(--purple)} .b-sat{background:rgba(100,116,139,0.15);color:var(--slate)}
+.callout{background:var(--navy-mid);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:0 12px 12px 0;padding:16px 20px;margin:12px 0;font-size:13px;line-height:1.7}
+.callout strong{color:var(--white-bright)}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px}
+.chart-box{background:var(--navy-mid);border:1px solid var(--border);border-radius:12px;padding:24px}
+.chart-box h4{font-size:13px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--slate);margin-bottom:16px}
+.ws-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px;border-left:3px solid var(--purple)}
+.ws-card h4{font-size:16px;font-weight:700;margin-bottom:4px}
+.ws-card .opp{font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px}
+.ws-card p{font-size:13px;color:var(--slate);line-height:1.6;margin-bottom:6px}
+.ws-card .hook{font-size:14px;color:var(--cyan);font-style:italic;padding:8px 12px;background:var(--navy-surface);border-radius:6px;margin:8px 0}
+.ws-card .fit{font-size:11px;color:var(--slate-dim)}
+.fatigue-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 3fr;gap:0;padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;align-items:center}
+.fatigue-row:last-child{border-bottom:none}
+.fatigue-row:hover{background:rgba(59,130,246,0.04)}
+.fatigue-hdr{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate-dim);font-weight:600;background:var(--navy-surface)}
+.gap-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:12px;display:grid;grid-template-columns:200px 80px 1fr;gap:16px;align-items:center}
+.gap-card h4{font-size:15px;font-weight:700}
+.gap-card p{font-size:13px;color:var(--slate);line-height:1.5}
+.footer{padding:40px 0;text-align:center;border-top:1px solid var(--border)}
+.footer .logo{font-size:13px;font-weight:700;letter-spacing:1px;color:var(--blue-bright);text-transform:uppercase;margin-bottom:6px}
+.footer .tagline{font-size:11px;color:var(--slate-dim)}
+@media(max-width:768px){.chart-row{grid-template-columns:1fr}.sg{grid-template-columns:repeat(2,1fr)}.gap-card{grid-template-columns:1fr}.fatigue-row{grid-template-columns:1fr;gap:4px}}
+</style></head><body>
+<div class="container">
+<div class="hdr">
+<div class="ey">Diagnostic 2 of 4: Message & Creative</div>
+<h1>Simple Green Creative Intelligence</h1>
+<div class="sub">Which formats win, which messaging angles convert, what is untested, and where creative fatigue is killing performance.</div>
+<div class="meta">
+<span><strong>Client:</strong> Simple Green</span>
+<span><strong>Period:</strong> Jan 1 - Apr 23, 2026</span>
+<span><strong>Active Campaigns:</strong> 9 LinkedIn + 3 Google</span>
+<span><strong>Formats in Use:</strong> Image, Video, Text, Spotlight</span>
+</div></div></div>
+
+<nav class="snav"><div class="container">
+<a class="nl" href="#formats">Format Performance</a>
+<a class="nl" href="#fatigue">Creative Fatigue</a>
+<a class="nl" href="#messaging">Messaging Map</a>
+<a class="nl" href="#whitespace">White Space</a>
+<a class="nl" href="#google">Google Signals</a>
+<a class="nl" href="#gaps">Format Gaps</a>
+<a class="nl" href="#recs">Recommendations</a>
+</div></nav>
+
+<div class="container">
+
+<section id="formats">
+<div class="sl">Section 01</div>
+<div class="st">Format Performance Ranking</div>
+<div class="sd">Which ad formats earn attention? Ranked by engagement quality, not volume.</div>
+<div class="sg">
+<div class="sc c-em"><div class="lb">Best CTR</div><div class="vl">Video</div><div class="sb">0.69% CTR at MOF</div></div>
+<div class="sc c-cy"><div class="lb">Best Engagement Rate</div><div class="vl">BOF Image</div><div class="sb">1.57% eng rate</div></div>
+<div class="sc c-am"><div class="lb">Cheapest CPC</div><div class="vl">Text</div><div class="sb">$2.38 CPC (near-zero cost)</div></div>
+<div class="sc c-bl"><div class="lb">Most Volume</div><div class="vl">TOF Image</div><div class="sb">765 clicks across 4 campaigns</div></div>
+<div class="sc c-rs"><div class="lb">Not In Use</div><div class="vl">TL Ads</div><div class="sb">3x CTR benchmark. Biggest gap.</div></div>
+</div>
+
+<div class="chart-row">
+<div class="chart-box"><h4>CTR by Campaign</h4><canvas id="ctrChart" height="300"></canvas></div>
+<div class="chart-box"><h4>Spend by Funnel Tier</h4><canvas id="tierChart" height="300"></canvas></div>
+</div>
+
+<div class="tw"><table><thead><tr><th>Campaign</th><th>Tier</th><th>Format</th><th>Spend</th><th>Clicks</th><th>CTR</th><th>CPC</th><th>Eng Rate</th><th>VVR</th></tr></thead><tbody><tr><td class="cn">BOF | Image | MOF 60D + F&B</td><td>BOF</td><td>Image</td>
+    <td class="mono">$3,411</td><td class="mono">185</td>
+    <td class="mono">0.76%</td><td class="mono">$18.44</td>
+    <td class="mono">1.57%</td><td class="mono">—</td></tr><tr><td class="cn">MOF | Image | Ret 90D</td><td>MOF</td><td>Image</td>
+    <td class="mono">$3,708</td><td class="mono">179</td>
+    <td class="mono">0.71%</td><td class="mono">$20.72</td>
+    <td class="mono">1.16%</td><td class="mono">—</td></tr><tr><td class="cn">MOF | Video | Ret 90D</td><td>MOF</td><td>Video</td>
+    <td class="mono">$4,724</td><td class="mono">272</td>
+    <td class="mono">0.69%</td><td class="mono">$17.37</td>
+    <td class="mono">0.73%</td><td class="mono">43.4%</td></tr><tr><td class="cn">TOF | Image | Ad Eng Ret 365D</td><td>TOF</td><td>Image</td>
+    <td class="mono">$903</td><td class="mono">131</td>
+    <td class="mono">0.56%</td><td class="mono">$6.90</td>
+    <td class="mono">1.25%</td><td class="mono">—</td></tr><tr><td class="cn">TOF | Image | Food & Bev 36K</td><td>TOF</td><td>Image</td>
+    <td class="mono">$1,693</td><td class="mono">166</td>
+    <td class="mono">0.45%</td><td class="mono">$10.20</td>
+    <td class="mono">0.84%</td><td class="mono">—</td></tr><tr><td class="cn">TOF | Image | Gov Admin 32K</td><td>TOF</td><td>Image</td>
+    <td class="mono">$1,405</td><td class="mono">124</td>
+    <td class="mono">0.4%</td><td class="mono">$11.33</td>
+    <td class="mono">0.74%</td><td class="mono">—</td></tr><tr><td class="cn">TOF | Image | Manufacturing 200K</td><td>TOF</td><td>Image</td>
+    <td class="mono">$2,437</td><td class="mono">344</td>
+    <td class="mono">0.39%</td><td class="mono">$7.08</td>
+    <td class="mono">0.74%</td><td class="mono">—</td></tr><tr><td class="cn">MOF | Spotlight | Ret 180D</td><td>MOF</td><td>Spotlight</td>
+    <td class="mono">$27</td><td class="mono">4</td>
+    <td class="mono">0.02%</td><td class="mono">$6.76</td>
+    <td class="mono">0.02%</td><td class="mono">—</td></tr><tr><td class="cn">MOF | Text | Ret 180D</td><td>MOF</td><td>Text</td>
+    <td class="mono">$5</td><td class="mono">2</td>
+    <td class="mono">0.01%</td><td class="mono">$2.38</td>
+    <td class="mono">0.01%</td><td class="mono">—</td></tr></tbody></table></div>
+<div class="callout" style="border-left-color:var(--emerald)"><strong>Video retargeting is the clear winner.</strong> 0.69% CTR with 43.4% video view rate at MOF. This format creates the deepest engagement with site visitors. BOF image is second (0.76% CTR, 1.57% engagement rate), proving the warm pool responds. TOF image is the workhorse but CTRs are declining territory for 6-month-old creative.</div>
+</section>
+
+<section id="fatigue">
+<div class="sl">Section 02</div>
+<div class="st">Creative Fatigue Assessment</div>
+<div class="sd">How long has each campaign run vs. its format's benchmark lifespan? Red means past expiration.</div>
+<div class="tw" style="padding:0">
+<div class="fatigue-row fatigue-hdr"><div>Campaign</div><div>Format</div><div>Active</div><div>Benchmark</div><div>Status</div></div><div class="fatigue-row">
+<div class="cn">TOF Manufacturing 200K</div>
+<div>Image</div>
+<div class="mono">6 mo</div>
+<div class="mono">4-5 weeks</div>
+<div><span class="badge b-fail">CRITICAL</span> 6 months on same image ads. Single Image benchmark lifespan is 4-5 weeks. Launched with only 4 active ads per Company Recon.</div>
+</div><div class="fatigue-row">
+<div class="cn">TOF Food & Bev 36K</div>
+<div>Image</div>
+<div class="mono">6 mo</div>
+<div class="mono">4-5 weeks</div>
+<div><span class="badge b-fail">CRITICAL</span> Same creative cohort as Manufacturing. Needs rotation.</div>
+</div><div class="fatigue-row">
+<div class="cn">TOF Gov Admin 32K</div>
+<div>Image</div>
+<div class="mono">6 mo</div>
+<div class="mono">4-5 weeks</div>
+<div><span class="badge b-fail">CRITICAL</span> Same creative cohort. Needs rotation.</div>
+</div><div class="fatigue-row">
+<div class="cn">MOF Video Ret 90D</div>
+<div>Video</div>
+<div class="mono">11 mo</div>
+<div class="mono">12 weeks</div>
+<div><span class="badge b-warn">WARN</span> 11 months active. Video benchmark is 12 weeks. CTR remains strong at 0.69% suggesting the video format resists fatigue better than image, but refresh should be planned.</div>
+</div><div class="fatigue-row">
+<div class="cn">MOF Image Ret 90D</div>
+<div>Image</div>
+<div class="mono">11 mo</div>
+<div class="mono">4-5 weeks</div>
+<div><span class="badge b-fail">CRITICAL</span> 11 months on same retargeting images. Well past benchmark lifespan.</div>
+</div><div class="fatigue-row">
+<div class="cn">BOF Image MOF 60D + F&B</div>
+<div>Image</div>
+<div class="mono">3 mo</div>
+<div class="mono">4-5 weeks</div>
+<div><span class="badge b-warn">WARN</span> 3 months. Approaching fatigue threshold. CTR still strong at 0.76%.</div>
+</div></div>
+<div class="callout" style="border-left-color:var(--red)"><strong>4 of 6 in-feed campaigns are past creative expiration.</strong> TOF image ads have been running 6 months against a 4-5 week benchmark. MOF image retargeting has run 11 months. Only the BOF image (3 months) and video retargeting (strong CTR despite age) are within acceptable range. Creative refresh is urgent.</div>
+</section>
+
+<section id="messaging">
+<div class="sl">Section 03</div>
+<div class="st">Messaging Status Map</div>
+<div class="sd">What is currently being messaged vs. what the competitive analysis says we should test.</div>
+
+<h4 style="font-size:14px;font-weight:600;margin:0 0 12px;color:var(--slate)">Currently Active Messaging Themes</h4>
+<div class="tw"><table><thead><tr><th>Theme</th><th>Status</th><th>Assessment</th></tr></thead><tbody><tr><td class="cn">Eco-friendly / Green Cleaning</td><td><span class="badge b-sat">SATURATED</span></td><td style="white-space:normal;max-width:400px">Every competitor claims this. Not a differentiator.</td></tr><tr><td class="cn">Tough on Grease</td><td><span class="badge b-sat">SATURATED</span></td><td style="white-space:normal;max-width:400px">All 10 competitors use this language. Table stakes.</td></tr><tr><td class="cn">Multi-Surface Versatility</td><td><span class="badge b-sat">SATURATED</span></td><td style="white-space:normal;max-width:400px">Generic without tying to SKU consolidation story.</td></tr><tr><td class="cn">Cost Effective</td><td><span class="badge b-sat">SATURATED</span></td><td style="white-space:normal;max-width:400px">Cannot win a price fight with Purple Power at $5-7/gallon.</td></tr><tr><td class="cn">Safe / Non-Toxic</td><td><span class="badge b-warn">PARTIALLY DIFFERENTIATED</span></td><td style="white-space:normal;max-width:400px">The 0/0/0/0 NFPA/HMIS rating IS unique, but 'non-toxic' as a claim is not. The data point differentiates, the label does not.</td></tr></tbody></table></div>
+<div class="callout" style="border-left-color:var(--amber)"><strong>Current messaging operates in saturated territory.</strong> 4 of 5 active themes are used by every competitor in the market. The one partially differentiated element (NFPA/HMIS 0/0/0/0 safety rating) is a unique data point, but it is buried under generic "safe/non-toxic" language instead of being the headline. Important client note: Simple Green's cleaner is Safer Choice Certified, but disinfectants are NOT (per client feedback via Laura). Creative must be precise about which products carry which certifications.</div>
+</section>
+
+<section id="whitespace">
+<div class="sl">Section 04</div>
+<div class="st">Untested White Space Angles</div>
+<div class="sd">From the Competitive White Space Analysis: 5 positioning gaps no competitor owns. None have been tested in ad creative.</div><div class="ws-card">
+<h4>Regulatory Compliance</h4>
+<div class="opp" style="color:var(--emerald)">Opportunity: HIGH</div>
+<p>EPA methylene chloride ban, OSHA exposure limits, LEED credit requirements. No competitor positions against named regulations.</p>
+<div class="hook">"That degreaser in your facility might be one OSHA inspection away from a citation."</div>
+<div class="fit"><strong>Best Persona Fit:</strong> EHS Managers, Facilities Managers, Plant Managers</div>
+</div><div class="ws-card">
+<h4>Worker Safety / OSHA Incident Prevention</h4>
+<div class="opp" style="color:var(--emerald)">Opportunity: HIGH</div>
+<p>Connect Simple Green's 0/0/0/0 NFPA/HMIS rating to reducing OSHA recordables. $40K+ per incident vs. product price premium.</p>
+<div class="hook">"One chemical injury costs $40,000+. Your degreaser's safety rating costs $0 to check."</div>
+<div class="fit"><strong>Best Persona Fit:</strong> Safety Managers, EHS Managers, Plant Managers, Operations Leaders</div>
+</div><div class="ws-card">
+<h4>Chemical Consolidation / SKU Reduction</h4>
+<div class="opp" style="color:var(--emerald)">Opportunity: HIGH</div>
+<p>One concentrate replaces 5-10 specialized cleaners. Reduces SDS count, training, storage, vendor complexity.</p>
+<div class="hook">"How many SDSs does your facility manage? Most have 3x more than they need."</div>
+<div class="fit"><strong>Best Persona Fit:</strong> Purchasing Managers, Procurement, Operations Leaders</div>
+</div><div class="ws-card">
+<h4>Heritage + Innovation (50 Years)</h4>
+<div class="opp" style="color:var(--amber)">Opportunity: MEDIUM</div>
+<p>50-year track record in industrial. No eco-competitor matches this tenure. Zep has age but not safety. ECOS has eco but not industrial.</p>
+<div class="hook">"50 years in industrial. Zero safety incidents from our formula."</div>
+<div class="fit"><strong>Best Persona Fit:</strong> All personas (trust signal)</div>
+</div><div class="ws-card">
+<h4>Facilities Intelligence / Tools</h4>
+<div class="opp" style="color:var(--amber)">Opportunity: MEDIUM</div>
+<p>SSA tool, Dilution Calculator, Cost Per Gallon Calculator already exist but are not marketed. Mid-market gap is wide open.</p>
+<div class="hook">"Run a free Safer Solutions Assessment and see what your cleaning program actually costs."</div>
+<div class="fit"><strong>Best Persona Fit:</strong> Procurement, Operations, Facilities Managers</div>
+</div>
+<div class="callout" style="border-left-color:var(--purple)"><strong>Zero white space angles have been tested in paid creative.</strong> The competitive analysis identified 5 positioning gaps. The top 3 (Regulatory Compliance, Worker Safety, SKU Consolidation) are HIGH opportunity and map directly to the personas already engaging: QA Leaders, Operations Leaders, Safety/EHS, and Procurement. These should be the first creative tests in the next 90 days.</div>
+</section>
+
+<section id="google">
+<div class="sl">Section 05</div>
+<div class="st">Google Search Term Messaging Signals</div>
+<div class="sd">What are people searching for after seeing Simple Green ads? (Mar 26 - Apr 22, 2026)</div>
+<div class="sg">
+<div class="sc c-em"><div class="lb">Total Conversions</div><div class="vl">249</div><div class="sb">From Google Search</div></div>
+<div class="sc c-bl"><div class="lb">Branded Terms</div><div class="vl">95%+</div><div class="sb">Of conversions are brand searches</div></div>
+<div class="sc c-rs"><div class="lb">Non-Converting Waste</div><div class="vl">$305</div><div class="sb">303 terms, 0 conversions</div></div>
+<div class="sc c-am"><div class="lb">Avg CPL (Brand)</div><div class="vl">$2.16</div><div class="sb">"simple green" exact match</div></div>
+</div>
+<div class="tw"><table><thead><tr><th>Search Theme</th><th>Example Terms</th><th>Conversions</th><th>Cost</th><th>% of Conv</th></tr></thead><tbody><tr><td class="cn">Brand (exact)</td><td style="white-space:normal;max-width:300px;color:var(--slate)">simple green, simplegreen, simplegreen.com</td>
+    <td class="mono">101</td><td class="mono">$216</td><td class="mono">40.6%</td></tr><tr><td class="cn">Brand + Product</td><td style="white-space:normal;max-width:300px;color:var(--slate)">simple green cleaner, simple green oxy solve, simple green products</td>
+    <td class="mono">42</td><td class="mono">$243</td><td class="mono">16.9%</td></tr><tr><td class="cn">Brand + Variant</td><td style="white-space:normal;max-width:300px;color:var(--slate)">simple green pro hd, simple green d pro 5, simple green crystal</td>
+    <td class="mono">12</td><td class="mono">$28</td><td class="mono">4.8%</td></tr><tr><td class="cn">Odor Eliminator</td><td style="white-space:normal;max-width:300px;color:var(--slate)">simple green outdoor odor eliminator, simple green odor eliminator, simple green enzyme cleaner</td>
+    <td class="mono">10</td><td class="mono">$217</td><td class="mono">4.0%</td></tr><tr><td class="cn">Specific Application</td><td style="white-space:normal;max-width:300px;color:var(--slate)">simple green house and siding, simple green naturals carpet care, aluminum safe simple green</td>
+    <td class="mono">9</td><td class="mono">$5</td><td class="mono">3.6%</td></tr><tr><td class="cn">Non-converting waste</td><td style="white-space:normal;max-width:300px;color:var(--slate)">simple green pet odor eliminator, simple green all purpose cleaner, simply green</td>
+    <td class="mono">0</td><td class="mono">$305</td><td class="mono">0%</td></tr></tbody></table></div>
+<div class="callout" style="border-left-color:var(--cyan)"><strong>Google confirms LinkedIn is generating branded awareness.</strong> 95%+ of Google conversions come from people searching for Simple Green by name. This is demand capture, not demand generation. The absence of non-branded industrial search terms (e.g., "industrial degreaser," "LEED compliant cleaner," "OSHA safe cleaning products") reveals an opportunity: Google is not being used for demand generation. These terms align with the white space messaging angles.</div>
+</section>
+
+<section id="gaps">
+<div class="sl">Section 06</div>
+<div class="st">Format Gaps</div>
+<div class="sd">Ad formats available on LinkedIn that are not currently in use.</div><div class="gap-card">
+<div><h4>Thought Leader Ads</h4><div style="font-size:11px;color:var(--slate-dim);margin-top:4px">NOT IN USE</div></div>
+<div><span class="badge b-fail">Impact: HIGH</span></div>
+<div><p>3x CTR benchmark vs. standard image. Not a single TL campaign exists. This is the biggest format gap. Would help reach VP/CXO personas who currently have minimal engagement.</p></div>
+</div><div class="gap-card">
+<div><h4>Carousel</h4><div style="font-size:11px;color:var(--slate-dim);margin-top:4px">NOT IN USE</div></div>
+<div><span class="badge b-warn">Impact: MEDIUM</span></div>
+<div><p>Multi-card format ideal for showing product range (Industrial, Clean Building, Anti-Spatter), compliance certifications, or before/after use cases. Not tested.</p></div>
+</div><div class="gap-card">
+<div><h4>Document Ads</h4><div style="font-size:11px;color:var(--slate-dim);margin-top:4px">NOT IN USE</div></div>
+<div><span class="badge b-warn">Impact: MEDIUM</span></div>
+<div><p>Native PDF viewer in-feed. Could host Safer Solutions Assessment, compliance guides, or dilution cost comparison tools as lead magnets.</p></div>
+</div><div class="gap-card">
+<div><h4>Lead Gen Forms</h4><div style="font-size:11px;color:var(--slate-dim);margin-top:4px">NOT IN USE</div></div>
+<div><span class="badge b-fail">Impact: CRITICAL</span></div>
+<div><p>Zero leads captured. LGF is the conversion mechanism that closes the funnel gap. Must be deployed at BOF.</p></div>
+</div><div class="gap-card">
+<div><h4>Conversation Ads</h4><div style="font-size:11px;color:var(--slate-dim);margin-top:4px">NOT IN USE</div></div>
+<div><span class="badge b-sat">Impact: LOW</span></div>
+<div><p>Choose-your-own-adventure format. Lower priority but could be tested for self-qualifying leads (I need: compliance help / cost reduction / safety improvement).</p></div>
+</div>
+</section>
+
+<section id="recs">
+<div class="sl">Section 07</div>
+<div class="st">Creative Action Plan</div>
+<div class="sd">Prioritized actions based on diagnostic findings.</div>
+
+<div class="callout" style="border-left-color:var(--red)"><strong>Priority 1: Deploy Lead Gen Forms at BOF.</strong> Zero leads captured. This is the conversion mechanism. Offer options: Safer Solutions Assessment for Operations, Anti-Spatter sample for EHS, LEED compliance guide for Facilities. Test immediately on the warm pool.</div>
+
+<div class="callout" style="border-left-color:var(--red)"><strong>Priority 2: Refresh all TOF image creative immediately.</strong> 6 months past benchmark lifespan. Replace with white-space messaging: (1) Regulatory compliance angle for EHS/Facilities, (2) Worker safety / OSHA cost angle for Safety/Plant Managers, (3) SKU consolidation angle for Procurement/Operations. This simultaneously fixes fatigue AND tests untested positioning.</div>
+
+<div class="callout" style="border-left-color:var(--amber)"><strong>Priority 3: Launch Thought Leader ads.</strong> 3x CTR benchmark. VP and CXO engagement is currently minimal (3.5% of clicks). TL format puts content from a real person in-feed, which earns attention from executive audiences. Source: Simple Green founder story, 50-year heritage, or industry safety content.</div>
+
+<div class="callout" style="border-left-color:var(--amber)"><strong>Priority 4: Add non-branded industrial terms to Google.</strong> Google currently runs 100% branded capture. Adding terms like "LEED compliant cleaner," "OSHA safe industrial degreaser," "EPA Safer Choice industrial," and "replace methylene chloride anti-spatter" would generate net-new demand that LinkedIn cannot capture alone.</div>
+
+<div class="callout" style="border-left-color:var(--blue)"><strong>Priority 5: Plan MOF video refresh.</strong> CTR is still strong (0.69%) so this is not urgent, but at 11 months it is approaching the outer edge. Develop new video assets: Clean Building walkthrough, Anti-Spatter demo, or facilities consolidation story. Have assets ready before CTR decline begins.</div>
+
+<div class="callout" style="border-left-color:var(--blue)"><strong>Certification Precision Note (from client).</strong> Simple Green's cleaner IS Safer Choice Certified. Disinfectants are NOT. Previous ad copy implied disinfectants were certified, and the client corrected it. All future creative must be precise: "EPA Safer Choice certified cleaners and degreasers" not "EPA Safer Choice certified products" generically.</div>
+</section>
+
+</div>
+
+<div class="footer"><div class="container">
+<div class="logo">DemandSense by Impactable</div>
+<div class="tagline">Message & Creative Diagnostic | Simple Green | Jan 1 - Apr 23, 2026</div>
+</div></div>
+
+<script>
+Chart.defaults.color='#94A3B8';Chart.defaults.borderColor='rgba(59,130,246,0.08)';Chart.defaults.font.family="'Plus Jakarta Sans',sans-serif";
+
+const ctrLabels=["BOF | Image | MOF 60D + F&B", "MOF | Image | Ret 90D", "MOF | Video | Ret 90D", "TOF | Image | Ad Eng Ret 365D", "TOF | Image | Food & Bev 36K", "TOF | Image | Gov Admin 32K", "TOF | Image | Manufacturing 20", "MOF | Spotlight | Ret 180D", "MOF | Text | Ret 180D"];
+const ctrValues=[0.76, 0.71, 0.69, 0.56, 0.45, 0.4, 0.39, 0.02, 0.01];
+const ctrColors=["#10B981", "#10B981", "#10B981", "#3B82F6", "#3B82F6", "#3B82F6", "#F59E0B", "#64748B", "#64748B"];
+new Chart(document.getElementById('ctrChart'),{type:'bar',data:{labels:ctrLabels,datasets:[{data:ctrValues,backgroundColor:ctrColors,borderRadius:4,barThickness:18}]},options:{indexAxis:'y',scales:{x:{title:{display:true,text:'CTR %'},grid:{color:'rgba(59,130,246,0.06)'}},y:{grid:{display:false}}},plugins:{legend:{display:false}}}});
+
+new Chart(document.getElementById('tierChart'),{type:'doughnut',data:{labels:['TOF (35%)','MOF (46%)','BOF (19%)'],datasets:[{data:[6438,8464,3411],backgroundColor:['#3B82F6','#F59E0B','#10B981'],borderWidth:0}]},options:{cutout:'65%',plugins:{legend:{position:'bottom',labels:{padding:16,usePointStyle:true}}}}});
+
+const sects=document.querySelectorAll('section[id]');const nls=document.querySelectorAll('.nl');
+window.addEventListener('scroll',()=>{let c='';sects.forEach(s=>{if(window.scrollY>=s.offsetTop-120)c=s.id});nls.forEach(l=>{l.classList.remove('active');if(l.getAttribute('href')==='#'+c)l.classList.add('active')});});
+</script>
+</body></html>
